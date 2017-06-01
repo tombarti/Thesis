@@ -77,29 +77,25 @@ import tensorflow as tf
 # local imports
 import util
 
-tf.app.flags.DEFINE_string('train_directory', './organised_data/train/',
+tf.app.flags.DEFINE_string('train_directory', '../data/organised_data/train/',
                            'Training data directory')
-tf.app.flags.DEFINE_string('validation_directory', './organised_data/validation/',
+tf.app.flags.DEFINE_string('validation_directory', '../data/organised_data/validation/',
                            'Validation data directory')
-tf.app.flags.DEFINE_string('output_directory', './tmp/',
+tf.app.flags.DEFINE_string('output_directory', '../data/records/',
                            'Output data directory')
 
 tf.app.flags.DEFINE_integer('train_shards', 2,
                             'Number of shards in training TFRecord files.')
 tf.app.flags.DEFINE_integer('validation_shards', 2,
+
                             'Number of shards in validation TFRecord files.')
 
 tf.app.flags.DEFINE_integer('num_threads', 2,
                             'Number of threads to preprocess the images.')
 
-# The labels file contains a list of valid labels are held in this file.
-# Assumes that the file contains entries as such:
-#   dog
-#   cat
-#   flower
-# where each line corresponds to a label. We map each label contained in
-# the file to an integer corresponding to the line number starting from 0.
-tf.app.flags.DEFINE_string('labels_file', './EmotioNet_FACS.csv', 'Labels file')
+tf.app.flags.DEFINE_string('labels_file', 
+    '../../data/EmotioNet_FACS.csv', 
+    'Labels file')
 
 
 FLAGS = tf.app.flags.FLAGS
@@ -339,15 +335,6 @@ def _find_image_files(data_dir, labels_file):
 
   Args:
     data_dir: string, path to the root directory of images.
-
-      Assumes that the image data set resides in JPEG files located in
-      the following directory structure.
-
-        data_dir/dog/another-image.JPEG
-        data_dir/dog/my-image.jpg
-
-      where 'dog' is the label associated with these images.
-
     labels_file: string, path to the labels file.
 
       The list of valid labels are held in this file. Assumes that the file
@@ -374,7 +361,7 @@ def _find_image_files(data_dir, labels_file):
   labels = []
   texts = []
 
-  # Construct the list of JPEG files and labels.
+  # Construct the list of texts and labels based on list of files.
   for fn in filenames:
     label_arr = dl_dict[rm_file_ext(fn)]
     labels.append(list(map(int, label_arr)))
@@ -412,26 +399,27 @@ def build_text(label_arr):
 def build_label(label_arr):
   return ','.join(label_arr)
 
-def rm_file_ext(fname):
-  if not '.' in fname or len(fname) < 5:
-    return fname
-  elif fname[-4] == '.':
-    return fname[:-4]
+def build_data_labels_dict(data_file):
+  """Builds dictionary of filenames with their associated label
 
-
-def build_data_labels_dict(data_file='EmotioNet_FACS.csv'):
+  Args:
+    data_file: string, path+name of file containing urls and labels
+  Returns:
+    data: dict, dictionary where key=filename and value=label
+  """
   data = []
+  # get urls & associated labels from csv file
   with open(data_file, 'r') as fh:
     data = fh.readlines()[1:]
-
   data = [d.split(',') for d in data]
+  # replace urls with filenames (remove file extension as well)
   for d in data:
-    fname = util.url_to_fname(d[0][1:-1])
-    d[0] = util.rm_file_ext(fname)
+    # get the file name
+    fname = u.url_to_filename(d[0][1:-1])
+    # remove file extension
+    d[0] = u.del_file_ext(fname)
   data = [(d[0], d[1:]) for d in data]
   return dict(data)
-
-
 
 def _process_dataset(name, directory, num_shards, labels_file):
   """Process a complete data set and save it as a TFRecord.

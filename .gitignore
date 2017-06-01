@@ -2,6 +2,7 @@
 data/images/**
 data/organised_data/**
 data/records/**
+data/imgs/**
 
 # ignore checkpoint files
 **/*.ckpt
