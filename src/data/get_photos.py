@@ -38,8 +38,14 @@ def get_urls(data_file):
   with open(data_file, 'r') as fh:
     lines = fh.readlines()[1:]
     img_urls = [l.split(',')[0][1:-1] for l in lines]
-  print("Found {} urls".format(len(img_urls)))
-  return np.unique(img_urls)
+  # delete leading ' if there is one
+  for i, img_url in enumerate(img_urls):
+    if img_url[0] == "'":
+      img_urls[i] = img_url[1:]
+      
+  img_urls = np.unique(img_urls)
+  print("Found {} unique urls".format(len(img_urls)))
+  return img_urls
 
 def remove_already_downloaded_urls(urls, data_dir):
   """Removes urls that have already been downloaded from list
@@ -80,6 +86,36 @@ def remove_bad_urls(urls, err_file):
   print("Removed {} bad urls".format(len(urls) - len(clean_urls)))
   return clean_urls
 
+def clean_error_file(err_file):
+  lines = []
+  delete_indexes = []
+  with open(err_file, 'r') as fh:
+    lines = fh.readlines()
+  errors = [l.split(',') for l in lines]
+  n_errs = len(lines)
+  # go through errors to find those corresponding to service not known
+  for i,l in enumerate(errors):
+    if len(l) != 2:
+      delete_indexes.append(i)
+      continue
+    err = l[1].strip()
+    print(err)
+    if err == "<urlopen error unknown url type: 'http>":
+      delete_indexes.append(i)
+    elif err == "<urlopen error [Errno -2] Name or service not known>":
+      delete_indexes.append(i)
+
+  # know delete false errors
+  for del_ind in sorted(delete_indexes, reverse=True):
+    del lines[del_ind]
+  # remove old error file
+  #os.remove(err_file)
+  # write new error file
+  #with open(err_file, 'w') as fh:
+    #fh.writelines(lines)
+  #print('Removed {} errors from {}'.format(n_errs - len(lines), err_file))
+  
+
 
 def main(_):
   # get flags
@@ -91,6 +127,8 @@ def main(_):
   img_urls = get_urls(data_file=DATA_FILE)
   # remove urls already downloaded
   img_urls = remove_already_downloaded_urls(img_urls, DOWNLOAD_DIR)
+  # remove connection errors
+  #clean_error_file(FLAGS.err_file)
   # remove bad urls
   img_urls = remove_bad_urls(img_urls, FLAGS.err_file)
   print("Number of images to download: {}".format(len(img_urls)))
@@ -101,7 +139,7 @@ def main(_):
     partial_download = partial(u.download_img_from_url, 
         data_dir=DOWNLOAD_DIR)
     # create pool for multiprocessing
-    pool = multiprocessing.Pool(processes=6)
+    pool = multiprocessing.Pool(processes=8)
     results = pool.map(partial_download, img_urls)
     # close all processes
     pool.close()

@@ -43,15 +43,22 @@ def url_to_filename(url, ext=None):
   Returns:
     filename: string, the corresponding filename
   """
+  _, old_ext = os.path.splitext(urlparse(url).path[1:])
   # remove punctuation from url
   filename = url.translate(str.maketrans('/', '_', '.'))
   # if an extension is specified, remove old one and add new
   if ext:
     filename, _ = os.path.splitext(filename)
     filename  += '.{}'.format(ext)
+    
   # filenames can't be more than 255 chars
   if len(filename) > 254:
-    filename = filename[-254:]
+    limit = -254
+    if not ext:
+      limit += len(old_ext)
+      if old_ext in ['.jpg', '.JPG']:
+        limit += 1
+    filename = filename[limit:]
   return filename
 
 def del_file_ext(filename):

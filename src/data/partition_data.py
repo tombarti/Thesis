@@ -1,3 +1,10 @@
+"""
+Partitions the data (images) located in data_dir into train and 
+validation directories train_dir and validation_dir respectively
+
+Partitions the data according to val_proportion argument which 
+specifies what proportion of the data should be reserved to validation
+"""
 import numpy as np
 from tqdm import tqdm
 import os
@@ -7,11 +14,11 @@ import shutil
 import tensorflow as tf
 
 tf.app.flags.DEFINE_string(
-    'validation_dir', '../../data/partitioned/validation',
+    'validation_dir', '../../data/partitioned/validation/',
     'Directory containing the validation (images) dataset')
 
 tf.app.flags.DEFINE_string(
-    'train_dir', '../../data/partitioned/train',
+    'train_dir', '../../data/partitioned/train/',
     'Directory containing the training (images) dataset')
 
 tf.app.flags.DEFINE_string(

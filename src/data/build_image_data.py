@@ -75,13 +75,13 @@ import threading
 import numpy as np
 import tensorflow as tf
 # local imports
-import util
+import util as u
 
-tf.app.flags.DEFINE_string('train_directory', '../data/organised_data/train/',
+tf.app.flags.DEFINE_string('train_directory', '../../data/partitioned/train/',
                            'Training data directory')
-tf.app.flags.DEFINE_string('validation_directory', '../data/organised_data/validation/',
+tf.app.flags.DEFINE_string('validation_directory', '../../data/partitioned/validation/',
                            'Validation data directory')
-tf.app.flags.DEFINE_string('output_directory', '../data/records/',
+tf.app.flags.DEFINE_string('output_directory', '../../data/records/',
                            'Output data directory')
 
 tf.app.flags.DEFINE_integer('train_shards', 2,
@@ -155,6 +155,7 @@ class ImageCoder(object):
     self._png_data = tf.placeholder(dtype=tf.string)
     image = tf.image.decode_png(self._png_data, channels=3)
     self._png_to_jpeg = tf.image.encode_jpeg(image, format='rgb', quality=100)
+    self._gif_to_jpeg = tf.image.encode_jpeg(image, format='rgb', quality=100)
 
     # Initializes function that decodes RGB JPEG data.
     self._decode_jpeg_data = tf.placeholder(dtype=tf.string)
@@ -163,6 +164,10 @@ class ImageCoder(object):
   def png_to_jpeg(self, image_data):
     return self._sess.run(self._png_to_jpeg,
                           feed_dict={self._png_data: image_data})
+
+  def gif_to_jpeg(self, image_data):
+    return self._sess.run(self._gif_to_jpeg,
+                          feed_dict={self._gif_data: image_data})
 
   def decode_jpeg(self, image_data):
     image = self._sess.run(self._decode_jpeg,
@@ -183,6 +188,16 @@ def _is_png(filename):
   """
   return '.png' in filename
 
+def _is_gif(filename):
+  """Determine if a file contains a GIF format image.
+
+  Args:
+    filename: string, path of the image file.
+
+  Returns:
+    boolean indicating if the image is a GIF.
+  """
+  return '.gif' in filename
 
 def _process_image(filename, coder):
   """Process a single image file.
@@ -203,6 +218,11 @@ def _process_image(filename, coder):
   if _is_png(filename):
     print('Converting PNG to JPEG for %s' % filename)
     image_data = coder.png_to_jpeg(image_data)
+  
+  # Convert any GIF to JPEG's for consistency.
+  if _is_gif(filename):
+    print('Converting GIF to JPEG for %s' % filename)
+    image_data = coder.gif_to_jpeg(image_data)
 
   # Decode the RGB JPEG.
   image = coder.decode_jpeg(image_data)
@@ -247,7 +267,7 @@ def _process_image_files_batch(coder, thread_index, ranges, name, filenames,
   for s in range(num_shards_per_batch):
     # Generate a sharded version of the file name, e.g. 'train-00002-of-00010'
     shard = thread_index * num_shards_per_batch + s
-    output_filename = '%s-%.5d-of-%.5d' % (name, shard, num_shards)
+    output_filename = '%s-%.5d-of-%.5d.record' % (name, shard, num_shards)
     output_file = os.path.join(FLAGS.output_directory, output_filename)
     writer = tf.python_io.TFRecordWriter(output_file)
 
@@ -355,17 +375,24 @@ def _find_image_files(data_dir, labels_file):
   print("Building filename-label dictionnary")
   dl_dict = build_data_labels_dict(labels_file)
   print("Building list of filenames")
-  filenames = [f for f in os.listdir(data_dir)]
-  print("--> Found {} files".format(len(filenames)))
+  fnames = [f for f in os.listdir(data_dir)]
+  print("--> Found {} files".format(len(fnames)))
 
+  filenames = []
   labels = []
   texts = []
-
+  c = 0
   # Construct the list of texts and labels based on list of files.
-  for fn in filenames:
-    label_arr = dl_dict[rm_file_ext(fn)]
+  for fn in fnames:
+    try:
+      dl_dict[u.del_file_ext(fn)]
+    except Exception as e:
+      c += 1
+      continue
+    label_arr = dl_dict[u.del_file_ext(fn)]
     labels.append(list(map(int, label_arr)))
     texts.append(build_text(label_arr))
+    filenames.append(fn)
 
   assert len(filenames) == len(labels)
   # add path to directory to filenames

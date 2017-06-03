@@ -1,13 +1,13 @@
 # ignore images
 data/images/**
-data/organised_data/**
+data/partitioned/**
 data/records/**
 data/imgs/**
 
 # ignore checkpoint files
 **/*.ckpt
 
-
+**/*.swp
 
 # ignore zip files
 *.zip

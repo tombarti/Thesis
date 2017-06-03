@@ -1,4 +1,6 @@
 from PIL import Image
+from tqdm import tqdm
+import os
 import numpy as np
 import tensorflow as tf
 
@@ -37,5 +39,7 @@ def get_all_records(FILE):
    coord.request_stop()
    coord.join(threads)
 
-record_file = '../../data/records/validation-00000-of-00002'
+record_file = '../../data/records/validation-00000-of-00002.record'
 get_all_records(record_file)
+
+
