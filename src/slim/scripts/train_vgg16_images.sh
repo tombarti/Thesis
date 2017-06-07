@@ -10,10 +10,10 @@
 set -e
 
 # Where the pre-trained InceptionV1 checkpoint is saved to.
-PRETRAINED_CHECKPOINT_DIR=~/Thesis/data/checkpoints/vgg_16
+PRETRAINED_CHECKPOINT_DIR=~/Thesis/tmp/vgg_16/checkpoint
 
 # Where the training (fine-tuned) checkpoint and logs will be saved to.
-TRAIN_DIR=~/Thesis/tmp/vgg16/train
+TRAIN_DIR=~/Thesis/tmp/vgg_16/train
 
 # Where the dataset is saved to.
 DATASET_DIR=~/Thesis/data/records
@@ -41,7 +41,7 @@ python train_image_classifier.py \
   --checkpoint_path=${PRETRAINED_CHECKPOINT_DIR}/vgg_16.ckpt \
   --checkpoint_exclude_scopes=vgg_16/fc6,vgg_16/fc7,vgg_16/fc8 \
   --trainable_scopes=vgg_16/fc6,vgg_16/fc7,vgg_16/fc8 \
-  --max_number_of_steps=100 \
+  --max_number_of_steps=2000 \
   --batch_size=32 \
   --learning_rate=0.01 \
   --save_interval_secs=600 \

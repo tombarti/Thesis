@@ -375,8 +375,18 @@ def _get_variables_to_train():
     variables_to_train.extend(variables)
   return variables_to_train
 
-def _one_hot_logits(logits, num_classes):
-  return slim.one_hot_encoding(tf.to_int64(tf.rint(logits)), num_classes)
+def _custom_logits(logits, num_classes, batch_size):
+  res = tf.tile(logits, [1, num_classes])
+  return tf.reshape(res, [batch_size, num_classes, num_classes])
+
+def _preprocess_labels(labels):
+  BAD_LABEL = 999
+  labels = tf.Variable(labels)
+  update_indices = tf.where(tf.equal(labels,BAD_LABEL))
+  n_updates = tf.shape(update_indices)[0]
+  updates = tf.zeros([n_updates], labels.dtype)
+  return tf.scatter_nd_update(labels, update_indices, updates)
+
 
 
 def main(_):
@@ -445,6 +455,7 @@ def main(_):
           capacity=5 * FLAGS.batch_size)
       labels = slim.one_hot_encoding(
           labels, dataset.num_classes - FLAGS.labels_offset)
+      #labels = _preprocess_labels(labels)
       batch_queue = slim.prefetch_queue.prefetch_queue(
           [images, labels], capacity=2 * deploy_config.num_clones)
 
@@ -457,7 +468,7 @@ def main(_):
       logits, end_points = network_fn(images)
 
       #TODO: customm one-hot encoding for logits
-      logits = _one_hot_logits(logits, dataset.num_classes)
+      logits = _custom_logits(logits, dataset.num_classes, FLAGS.batch_size)
       print(logits)
 
       #############################
