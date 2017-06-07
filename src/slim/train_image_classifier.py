@@ -159,6 +159,14 @@ tf.app.flags.DEFINE_float(
     'If left as None, then moving averages are not used.')
 
 #######################
+# Loss Function Flags #
+#######################
+
+tf.app.flags.DEFINE_boolean(
+    'is_multi_label', True,
+    'If the classification task is mutlilabel ')
+
+#######################
 # Dataset Flags #
 #######################
 
@@ -470,7 +478,7 @@ def main(_):
       l_shape = labels.get_shape()
       labels = tf.py_func(_preprocess_labels, [labels], tf.int64)
       labels.set_shape(l_shape)
-      labels = _custom_one_hot_labels(labels)
+      #labels = _custom_one_hot_labels(labels)
       batch_queue = slim.prefetch_queue.prefetch_queue(
           [images, labels], capacity=2 * deploy_config.num_clones)
 
@@ -483,19 +491,25 @@ def main(_):
       logits, end_points = network_fn(images)
 
       #TODO: customm one-hot encoding for logits
-      logits = _tile_logits(logits, FLAGS.batch_size, dataset.num_classes)
+      #logits = _tile_logits(logits, FLAGS.batch_size, dataset.num_classes)
 
       #############################
       # Specify the loss function #
       #############################
 
-      if 'AuxLogits' in end_points:
+      if FLAGS.is_multi_label:
+        print("Using multi label approach for loss function")
+        tf.losses.sigmoid_cross_entropy(
+            labels=labels, logits=logits, name='Multilabel loss')
+      else:
+        print("Using multi class approach for loss function")
+        if 'AuxLogits' in end_points:
+          tf.losses.softmax_cross_entropy(
+              logits=end_points['AuxLogits'], onehot_labels=labels,
+              label_smoothing=FLAGS.label_smoothing, weights=0.4, scope='aux_loss')
         tf.losses.softmax_cross_entropy(
-            logits=end_points['AuxLogits'], onehot_labels=labels,
-            label_smoothing=FLAGS.label_smoothing, weights=0.4, scope='aux_loss')
-      tf.losses.softmax_cross_entropy(
-          logits=logits, onehot_labels=labels,
-          label_smoothing=FLAGS.label_smoothing, weights=1.0)
+            logits=logits, onehot_labels=labels,
+            label_smoothing=FLAGS.label_smoothing, weights=1.0)
       return end_points
 
     # Gather initial summaries.
