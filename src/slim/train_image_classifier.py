@@ -375,18 +375,29 @@ def _get_variables_to_train():
     variables_to_train.extend(variables)
   return variables_to_train
 
-def _custom_logits(logits, num_classes, batch_size):
+def _tile_logits(logits, batch_size, num_classes):
   res = tf.tile(logits, [1, num_classes])
   return tf.reshape(res, [batch_size, num_classes, num_classes])
 
 def _preprocess_labels(labels):
   BAD_LABEL = 999
-  labels = tf.Variable(labels)
-  update_indices = tf.where(tf.equal(labels,BAD_LABEL))
-  n_updates = tf.shape(update_indices)[0]
-  updates = tf.zeros([n_updates], labels.dtype)
-  return tf.scatter_nd_update(labels, update_indices, updates)
+  for i, label in enumerate(labels):
+    for j, l in enumerate(label):
+      if l == BAD_LABEL:
+        labels[i,j] = 0
+  return labels
 
+def _custom_one_hot_labels(labels):
+  """
+  Args:
+    labels: [batch_size, num_classes], the labels to convert
+  Returns:
+    one_hot_labels: [batch_size, num_classes, num_classes], the one hot labels
+  """
+  one_hot_labels = []
+  for label in tf.unstack(labels):
+    one_hot_labels.append(tf.diag(label))
+  return tf.stack(one_hot_labels)
 
 
 def main(_):
@@ -453,9 +464,13 @@ def main(_):
           batch_size=FLAGS.batch_size,
           num_threads=FLAGS.num_preprocessing_threads,
           capacity=5 * FLAGS.batch_size)
-      labels = slim.one_hot_encoding(
-          labels, dataset.num_classes - FLAGS.labels_offset)
-      #labels = _preprocess_labels(labels)
+
+      #labels = slim.one_hot_encoding(
+          #labels, dataset.num_classes - FLAGS.labels_offset)
+      l_shape = labels.get_shape()
+      labels = tf.py_func(_preprocess_labels, [labels], tf.int64)
+      labels.set_shape(l_shape)
+      labels = _custom_one_hot_labels(labels)
       batch_queue = slim.prefetch_queue.prefetch_queue(
           [images, labels], capacity=2 * deploy_config.num_clones)
 
@@ -468,8 +483,7 @@ def main(_):
       logits, end_points = network_fn(images)
 
       #TODO: customm one-hot encoding for logits
-      logits = _custom_logits(logits, dataset.num_classes, FLAGS.batch_size)
-      print(logits)
+      logits = _tile_logits(logits, FLAGS.batch_size, dataset.num_classes)
 
       #############################
       # Specify the loss function #
