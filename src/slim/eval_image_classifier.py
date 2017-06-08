@@ -79,6 +79,10 @@ tf.app.flags.DEFINE_float(
 tf.app.flags.DEFINE_integer(
     'eval_image_size', None, 'Eval image size')
 
+tf.app.flags.DEFINE_boolean(
+    'is_multi_label', True,
+    'If the classification task is mutlilabel ')
+
 FLAGS = tf.app.flags.FLAGS
 
 
@@ -147,7 +151,10 @@ def main(_):
     else:
       variables_to_restore = slim.get_variables_to_restore()
 
-    predictions = tf.argmax(logits, 1)
+    if FLAGS.is_multi_label:
+      predictions = tf.rint(logits)
+    else:
+      predictions = tf.argmax(logits, 1)
     labels = tf.squeeze(labels)
 
     # Define the metrics:

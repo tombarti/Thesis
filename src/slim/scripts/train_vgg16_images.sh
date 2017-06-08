@@ -31,33 +31,38 @@ if [ ! -f ${PRETRAINED_CHECKPOINT_DIR}/vgg_16.ckpt ]; then
   rm vgg_16_2016_08_28.tar.gz
 fi
 
-# Fine-tune only the new layers for 2000 steps.
-python train_image_classifier.py \
-  --train_dir=${TRAIN_DIR} \
-  --dataset_name=images \
-  --dataset_split_name=train \
-  --dataset_dir=${DATASET_DIR} \
-  --model_name=vgg_16 \
-  --checkpoint_path=${PRETRAINED_CHECKPOINT_DIR}/vgg_16.ckpt \
-  --checkpoint_exclude_scopes=vgg_16/fc6,vgg_16/fc7,vgg_16/fc8 \
-  --trainable_scopes=vgg_16/fc6,vgg_16/fc7,vgg_16/fc8 \
-  --max_number_of_steps=2000 \
-  --batch_size=32 \
-  --learning_rate=0.01 \
-  --save_interval_secs=600 \
-  --save_summaries_secs=600 \
-  --log_every_n_steps=100 \
-  --optimizer=rmsprop \
-  --weight_decay=0.00004
-
-# Run evaluation.
-#python eval_image_classifier.py \
- # --checkpoint_path=${TRAIN_DIR} \
- # --eval_dir=${TRAIN_DIR} \
- # --dataset_name=flowers \
- # --dataset_split_name=validation \
- # --dataset_dir=${DATASET_DIR} \
- # --model_name=inception_v1
+case $1 in
+  train)
+    # Fine-tune only the new layers for 2000 steps.
+    python train_image_classifier.py \
+      --train_dir=${TRAIN_DIR} \
+      --dataset_name=images \
+      --dataset_split_name=train \
+      --dataset_dir=${DATASET_DIR} \
+      --model_name=vgg_16 \
+      --checkpoint_path=${PRETRAINED_CHECKPOINT_DIR}/vgg_16.ckpt \
+      --checkpoint_exclude_scopes=vgg_16/fc6,vgg_16/fc7,vgg_16/fc8 \
+      --trainable_scopes=vgg_16/fc6,vgg_16/fc7,vgg_16/fc8 \
+      --max_number_of_steps=30000 \
+      --batch_size=32 \
+      --learning_rate=0.01 \
+      --save_interval_secs=600 \
+      --save_summaries_secs=600 \
+      --log_every_n_steps=100 \
+      --optimizer=rmsprop \
+      --weight_decay=0.00004
+    ;;
+  evaluate)
+    # Run evaluation.
+    python eval_image_classifier.py \
+      --checkpoint_path=${TRAIN_DIR} \
+      --eval_dir=${TRAIN_DIR} \
+      --dataset_name=images \
+      --dataset_split_name=validation \
+      --dataset_dir=${DATASET_DIR} \
+      --model_name=vgg_16
+    ;;
+esac
 
 # Fine-tune all the new layers for 1000 steps.
 #python train_image_classifier.py \

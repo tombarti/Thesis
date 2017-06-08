@@ -9,6 +9,8 @@ data/imgs/**
 
 **/*.swp
 
+tmp/**
+
 # ignore zip files
 *.zip
 

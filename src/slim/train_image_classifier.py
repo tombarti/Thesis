@@ -498,9 +498,12 @@ def main(_):
       #############################
 
       if FLAGS.is_multi_label:
-        print("Using multi label approach for loss function")
+        print("Using multi label approach for loss function\n")
         tf.losses.sigmoid_cross_entropy(
-            labels=labels, logits=logits, name='Multilabel loss')
+            multi_class_labels=labels,
+            logits=logits,
+            label_smoothing=FLAGS.label_smoothing,
+            weights=1.0)
       else:
         print("Using multi class approach for loss function")
         if 'AuxLogits' in end_points:
