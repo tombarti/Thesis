@@ -431,6 +431,8 @@ def main(_):
     ######################
     # Select the dataset #
     ######################
+    print(" - Using the {} dataset on split {}".format(FLAGS.dataset_name,
+      FLAGS.dataset_split_name))
     dataset = dataset_factory.get_dataset(
         FLAGS.dataset_name, FLAGS.dataset_split_name, FLAGS.dataset_dir)
 
