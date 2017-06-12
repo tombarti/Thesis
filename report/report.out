@@ -1,0 +1,24 @@
+\BOOKMARK [1][]{section.2}{1 Introduction}{}% 1
+\BOOKMARK [1][]{section.3}{2 Background}{}% 2
+\BOOKMARK [2][]{subsection.4}{2.1 Facial Expressions}{section.3}% 3
+\BOOKMARK [3][]{subsubsection.5}{2.1.1 Facial Action Coding System \(FACS\)}{subsection.4}% 4
+\BOOKMARK [3][]{subsubsection.8}{2.1.2 Interpreting emotions}{subsection.4}% 5
+\BOOKMARK [2][]{subsection.13}{2.2 Facial Expression Analysis}{section.3}% 6
+\BOOKMARK [2][]{subsection.14}{2.3 Databases}{section.3}% 7
+\BOOKMARK [2][]{subsection.15}{2.4 Deep Learning Models}{section.3}% 8
+\BOOKMARK [3][]{subsubsection.16}{2.4.1 VGG 16}{subsection.15}% 9
+\BOOKMARK [3][]{subsubsection.17}{2.4.2 ResNet}{subsection.15}% 10
+\BOOKMARK [1][]{section.18}{3 EmotioNet Database}{}% 11
+\BOOKMARK [2][]{subsection.19}{3.1 Downloading}{section.18}% 12
+\BOOKMARK [3][]{subsubsection.20}{3.1.1 Reading the xlsx file}{subsection.19}% 13
+\BOOKMARK [3][]{subsubsection.21}{3.1.2 Downloading the image}{subsection.19}% 14
+\BOOKMARK [3][]{subsubsection.22}{3.1.3 Storing the image}{subsection.19}% 15
+\BOOKMARK [2][]{subsection.23}{3.2 Converting to TFRecords}{section.18}% 16
+\BOOKMARK [2][]{subsection.24}{3.3 Extending TF-Slim datasets}{section.18}% 17
+\BOOKMARK [2][]{subsection.25}{3.4 Annotating Valence and Arousal}{section.18}% 18
+\BOOKMARK [1][]{section.26}{4 Action Unit Classification}{}% 19
+\BOOKMARK [2][]{subsection.27}{4.1 VGG 16}{section.26}% 20
+\BOOKMARK [2][]{subsection.28}{4.2 ResNet}{section.26}% 21
+\BOOKMARK [1][]{section.29}{5 Valence and Arousal Regression}{}% 22
+\BOOKMARK [2][]{subsection.30}{5.1 VGG 16}{section.29}% 23
+\BOOKMARK [2][]{subsection.31}{5.2 ResNet}{section.29}% 24
