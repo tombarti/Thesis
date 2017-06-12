@@ -29,9 +29,9 @@ from datasets import dataset_utils
 
 slim = tf.contrib.slim
 
-_FILE_PATTERN = '%s-*-of-*'
+_FILE_PATTERN = '%s-*-of-*.record'
 
-SPLITS_TO_SIZES = {'train': 200, 'validation': 50}
+SPLITS_TO_SIZES = {'train': 15000, 'validation': 6400}
 
 _NUM_CLASSES = 60
 

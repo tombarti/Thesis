@@ -46,7 +46,7 @@ case $1 in
     # Fine-tune only the new layers for 2000 steps.
     python train_image_classifier.py \
       --train_dir=${TRAIN_DIR} \
-      --dataset_name=emotionet \
+      --dataset_name=images \
       --dataset_split_name=train \
       --dataset_dir=${DATASET_DIR} \
       --model_name=vgg_16 \
@@ -72,7 +72,7 @@ case $1 in
     python eval_image_classifier.py \
       --checkpoint_path=${TRAIN_DIR} \
       --eval_dir=${EVAL_DIR} \
-      --dataset_name=emotionet \
+      --dataset_name=images \
       --dataset_split_name=validation \
       --dataset_dir=${DATASET_DIR} \
       --model_name=vgg_16

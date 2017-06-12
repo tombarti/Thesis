@@ -98,7 +98,7 @@ tf.app.flags.DEFINE_float(
     'adam_beta2', 0.999,
     'The exponential decay rate for the 2nd moment estimates.')
 
-tf.app.flags.DEFINE_float('opt_epsilon', 1.0, 'Epsilon term for the optimizer.')
+tf.app.flags.DEFINE_float('opt_epsilon', 1.0e-08, 'Epsilon term for the optimizer.')
 
 tf.app.flags.DEFINE_float('ftrl_learning_rate_power', -0.5,
                           'The learning rate power.')
@@ -431,6 +431,8 @@ def main(_):
     ######################
     # Select the dataset #
     ######################
+    print(" - Using the {} dataset on split {}".format(FLAGS.dataset_name,
+      FLAGS.dataset_split_name))
     dataset = dataset_factory.get_dataset(
         FLAGS.dataset_name, FLAGS.dataset_split_name, FLAGS.dataset_dir)
 
@@ -498,14 +500,14 @@ def main(_):
       #############################
 
       if FLAGS.is_multi_label:
-        print("Using multi label approach for loss function\n")
+        print(" - Using multi label approach for loss function")
         tf.losses.sigmoid_cross_entropy(
             multi_class_labels=labels,
             logits=logits,
             label_smoothing=FLAGS.label_smoothing,
             weights=1.0)
       else:
-        print("Using multi class approach for loss function")
+        print(" - Using multi class approach for loss function")
         if 'AuxLogits' in end_points:
           tf.losses.softmax_cross_entropy(
               logits=end_points['AuxLogits'], onehot_labels=labels,
@@ -572,6 +574,7 @@ def main(_):
       # Update ops executed locally by trainer.
       update_ops.append(variable_averages.apply(moving_average_variables))
 
+    print(" - Using {} optimiser".format(FLAGS.optimizer))
     # Variables to train.
     variables_to_train = _get_variables_to_train()
 
