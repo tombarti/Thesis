@@ -85,11 +85,27 @@ tf.app.flags.DEFINE_boolean(
 
 FLAGS = tf.app.flags.FLAGS
 
+def _preprocess_labels(labels):
+  BAD_LABEL = 999
+  for i, label in enumerate(labels):
+    for j, l in enumerate(label):
+      if l == BAD_LABEL:
+        labels[i,j] = 0
+  return labels
+
+def _multi_label_accuracy(labels, predictions):
+  accuracy = []
+  if labels.dtype != predictions.dtype:
+    predictions = tf.cast(predictions, labels.dtype)
+  for label, prediction in zip(tf.unstack(labels), tf.unstack(predictions)):
+    matches = tf.reduce_sum(tf.cast(tf.equal(label, prediction), tf.float32))
+    size = tf.cast(tf.shape(label)[0], matches.dtype)
+    accuracy.append(matches / size)
+  return accuracy
 
 def main(_):
   if not FLAGS.dataset_dir:
     raise ValueError('You must supply the dataset directory with --dataset_dir')
-
   tf.logging.set_verbosity(tf.logging.INFO)
   with tf.Graph().as_default():
     tf_global_step = slim.get_or_create_global_step()
@@ -152,16 +168,27 @@ def main(_):
       variables_to_restore = slim.get_variables_to_restore()
 
     if FLAGS.is_multi_label:
-      predictions = tf.rint(logits)
+      print("Using multilabel approach\n")
+      predictions = tf.round(tf.nn.sigmoid(logits))
     else:
+      print("Usint multicalss approach\n")
       predictions = tf.argmax(logits, 1)
+
+    # preprocess labels
+    l_shape = labels.get_shape()
+    labels = tf.py_func(_preprocess_labels, [labels], tf.int64)
+    labels.set_shape(l_shape)
     labels = tf.squeeze(labels)
+
+    # partial accuracy
+    accuracy = _multi_label_accuracy(labels, predictions)
 
     # Define the metrics:
     names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
-        'Accuracy': slim.metrics.streaming_accuracy(predictions, labels),
-        'Recall_5': slim.metrics.streaming_recall_at_k(
-            logits, labels, 5),
+        'Partial_Accuracy': slim.metrics.streaming_mean(accuracy),
+        'Total_Accuracy': slim.metrics.streaming_accuracy(predictions, labels),
+        'Recall_5': slim.metrics.streaming_recall(
+            logits, labels),
     })
 
     # Print the summaries to screen.

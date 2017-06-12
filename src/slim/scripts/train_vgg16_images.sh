@@ -6,14 +6,20 @@
 #
 # Usage:
 # cd slim
-# ./slim/scripts/finetune_inception_v1_on_flowers.sh
+# ./slim/scripts/{name_of_script}.sh
 set -e
+
+# set optimiser
+OPTIMISER=adam
 
 # Where the pre-trained InceptionV1 checkpoint is saved to.
 PRETRAINED_CHECKPOINT_DIR=~/Thesis/tmp/vgg_16/checkpoint
 
 # Where the training (fine-tuned) checkpoint and logs will be saved to.
-TRAIN_DIR=~/Thesis/tmp/vgg_16/train
+TRAIN_DIR=~/Thesis/tmp/vgg_16/train/${OPTIMISER}
+
+# Where the evaluation checkpoint and logs will be saved to
+EVAL_DIR=~/Thesis/tmp/vgg_16/eval/${OPTIMISER}
 
 # Where the dataset is saved to.
 DATASET_DIR=~/Thesis/data/records
@@ -33,6 +39,10 @@ fi
 
 case $1 in
   train)
+    if [ ! -d "$TRAIN_DIR" ]; then
+      mkdir -p ${TRAIN_DIR}
+      echo "created directory" ${PRETRAINED_CHECKPOINT_DIR}
+    fi
     # Fine-tune only the new layers for 2000 steps.
     python train_image_classifier.py \
       --train_dir=${TRAIN_DIR} \
@@ -49,14 +59,19 @@ case $1 in
       --save_interval_secs=600 \
       --save_summaries_secs=600 \
       --log_every_n_steps=100 \
-      --optimizer=rmsprop \
+      --optimizer=${OPTIMISER} \
       --weight_decay=0.00004
     ;;
   evaluate)
+    if [ ! -d "$EVAL_DIR" ]; then
+      mkdir -p ${EVAL_DIR}
+      echo "created directory" ${PRETRAINED_CHECKPOINT_DIR}
+    fi
+
     # Run evaluation.
     python eval_image_classifier.py \
       --checkpoint_path=${TRAIN_DIR} \
-      --eval_dir=${TRAIN_DIR} \
+      --eval_dir=${EVAL_DIR} \
       --dataset_name=images \
       --dataset_split_name=validation \
       --dataset_dir=${DATASET_DIR} \
