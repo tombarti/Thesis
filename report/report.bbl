@@ -1,0 +1,63 @@
+\begin{thebibliography}{10}
+
+\bibitem{RefWorks:1}
+C.~Fabian Benitez-Quiroz, Ramprakash Srinivasan, and Aleix~M. Martinez.
+\newblock Emotionet: An accurate, real-time algorithm for the automatic
+  annotation of a million facial expressions in the wild.
+\newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition}, pages 5562--5570, 2016.
+
+\bibitem{RefWorks:12}
+Paul Ekman and Wallace~V. Friesen.
+\newblock Constants across cultures in the face and emotion.
+\newblock {\em Journal of personality and social psychology}, 17(2):124, 1971.
+
+\bibitem{RefWorks:10}
+Paul Ekman, Wallace~V. Friesen, and Joseph~C. Hager.
+\newblock Facial action coding system (facs).
+\newblock {\em A technique for the measurement of facial action.Consulting,
+  Palo Alto}, 22, 1978.
+
+\bibitem{RefWorks:11}
+B.~Fasel and Juergen Luettin.
+\newblock Automatic facial expression analysis: a survey.
+\newblock {\em Pattern Recognition}, 36(1):259--275, 1 2003.
+
+\bibitem{RefWorks:17}
+S.~Mohammad Mavadati, Mohammad~H. Mahoor, Kevin Bartlett, Philip Trinh, and
+  Jeffrey~F. Cohn.
+\newblock Disfa: A spontaneous facial action intensity database.
+\newblock {\em IEEE Transactions on Affective Computing}, 4(2):151--160, 2013.
+
+\bibitem{RefWorks:18}
+Daniel McDuff, Rana Kaliouby, Thibaud Senechal, May Amr, Jeffrey Cohn, and
+  Rosalind Picard.
+\newblock Affectiva-mit facial expression dataset (am-fed): Naturalistic and
+  spontaneous facial expressions collected.
+\newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition Workshops}, pages 881--888, 2013.
+
+\bibitem{RefWorks:19}
+Maja Pantic and Leon J.~M. Rothkrantz.
+\newblock Automatic analysis of facial expressions: The state of the art.
+\newblock {\em IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  22(12):1424--1445, 2000.
+
+\bibitem{RefWorks:13}
+RL~Schiefelbusch.
+\newblock {\em Handbook of methods in nonverbal behavior research. Klaus R.
+  Scherer \& Paul Ekman (Eds.). Cambridge University Press, 1982.}, volume~4.
+\newblock Cambridge Univ Press, 1982.
+
+\bibitem{RefWorks:21}
+Karen Simonyan and Andrew Zisserman.
+\newblock Very deep convolutional networks for large-scale image recognition.
+\newblock {\em CoRR}, abs/1409.1556, 2014.
+
+\bibitem{RefWorks:2}
+Stefanos Zafeiriou, Athanasios Papaioannou, Irene Kotsia, Mihalis~A. Nicolaou,
+  Guoying Zhao, E.~Antonakos, P.~Snape, G.~Trigeorgis, and S.~Zafeiriou.
+\newblock Facial affect “in-the-wild”: A survey and a new database.
+\newblock In {\em International Conference on Computer Vision}.
+
+\end{thebibliography}
