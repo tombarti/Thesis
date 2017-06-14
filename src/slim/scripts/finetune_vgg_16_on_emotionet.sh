@@ -10,7 +10,7 @@
 set -e
 
 # set optimiser
-OPTIMISER=rmsporp
+OPTIMISER=adam
 
 # Where the pre-trained InceptionV1 checkpoint is saved to.
 PRETRAINED_CHECKPOINT_DIR=~/Thesis/tmp/vgg_16/checkpoint
