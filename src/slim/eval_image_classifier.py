@@ -86,36 +86,91 @@ tf.app.flags.DEFINE_boolean(
 FLAGS = tf.app.flags.FLAGS
 
 def _preprocess_labels(labels):
+  """Replaces all 999 elements in labels by 0
+
+  Args:
+  labels: [batch_size, num_classes], the labels for n=batch_size examples
+
+  Returns:
+  labels: [batch_size, num_classes], the preprocessed labels with every 999
+          replaced by a 0
+  """
   BAD_LABEL = 999
+  # iterate through each label
   for i, label in enumerate(labels):
     for j, l in enumerate(label):
       if l == BAD_LABEL:
         labels[i,j] = 0
   return labels
 
-def _multi_label_accuracy(labels, predictions):
-  accuracy = []
+def _partial_accuracy(labels, predictions, num_classes):
+  """Calculates the accuracy of predictions with respect to labels in a multi
+  label setting (i.e. classes are not mutually exlusive: an example can have
+  multiple classes active at the same time).
+
+  The accuracy of one prediction (i.e. for one example) is calculated as the
+  proportion of classes that where correctly predicted (e.g. the proportion of
+  action units that were correctlly predicted).
+
+  Args:
+  labels: [batch_size, num_classes], tensor containing the labels for
+          n=batch_size examples
+  predictions: [batch_size, num_classes], tensor containing the predictions for
+               n=batch_size examples
+
+  Returns:
+  partial_accuracies: [batch_size], the individual partial accuracies of each 
+                      example 
+  """
+  partial_accuracies = []
+  # make sure predictions and labels have the same type
   if labels.dtype != predictions.dtype:
     predictions = tf.cast(predictions, labels.dtype)
+  
+  # calculate partial accuracy of each prediction in predictions
   for label, prediction in zip(tf.unstack(labels), tf.unstack(predictions)):
+    # compute number of correctly predicted classes
     matches = tf.reduce_sum(tf.cast(tf.equal(label, prediction), tf.float32))
-    size = tf.cast(tf.shape(label)[0], matches.dtype)
-    accuracy.append(matches / size)
-  return accuracy
+    # divide by the number of classes to get proportion 
+    partial_accuracies.append(matches / num_classes)
+  return partial_accuracies
 
 def clean_labels_predictions(labels, predictions):
+  """Cleans the labels and their associated predicitons
+
+  Here cleaning is defined as removing label elements that are equal to 999
+  (i.e label elements that signify that we do not know if the action unit is
+  activated or not)
+  
+  Hence we remove these "bad" elements from the label and remove the
+  corresponding prediciton elements. This process is repeated for every label
+  and prediction in arguments labels and predictions respectively.
+
+  Args:
+  labels: [batch_size, num_classes], tensor containing the labels for
+          n=batch_size examples
+  predictions: [batch_size, num_classes], tensor containing the predictions for
+               n=batch_size examples
+
+  Returns:
+  clean_labels: [batch_size, num_classes], the cleaned labels
+  clean_predictions: [batch_size, num_classes], the cleaned predictions
+  """
+  # make sure labels and predicitions have the same type
   if labels.dtype != predictions.dtype:
     predictions = tf.cast(predictions, labels.dtype)
   BAD_LABEL = tf.constant(999, dtype=tf.int64)
   clean_labels = []
   clean_predictions = []
+  # clean each label and associated prediction
   for label, prediction in zip(tf.unstack(labels), tf.unstack(predictions)):
+    # will be False where label = 999 and True otherwise
     delete_mask = tf.not_equal(label, BAD_LABEL)
+    # gather label elements that are not equal to 999
     clean_labels.append(tf.boolean_mask(label, delete_mask))
+    # gather associated predictions
     clean_predictions.append(tf.boolean_mask(prediction, delete_mask))
   return tf.stack(clean_labels), tf.stack(clean_predictions)
-
-
 
 def main(_):
   if not FLAGS.dataset_dir:
@@ -190,25 +245,27 @@ def main(_):
       print("Usint multicalss approach\n")
       predictions = tf.argmax(logits, 1)
 
+    # labels without the 999 elements and their corresponding predictions
     clean_labels, clean_predictions = clean_labels_predictions(labels,
                                                           predictions)
-    # preprocess labels
+    # preprocess labels to replace all 999 labels with 0 
     l_shape = labels.get_shape()
-    #labels = tf.py_func(_preprocess_labels, [labels], tf.int64)
-    #labels.set_shape(l_shape)
+    labels = tf.py_func(_preprocess_labels, [labels], tf.int64)
+    labels.set_shape(l_shape)
+
+    # remove uncessary outer dimensions
     labels = tf.squeeze(labels)
 
-
-
     # partial accuracy
-    accuracy = _multi_label_accuracy(labels, predictions)
+    partial_accuracy = _partial_accuracy(labels, predictions, dataset.num_classes)
 
     # Define the metrics:
+    # Partial accuracy is the average of the accuracy of each prediction.
     names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
-        'Partial_Accuracy': slim.metrics.streaming_mean(accuracy),
+        'Partial_Accuracy': slim.metrics.streaming_mean(partial_accuracy),
         'Total_Accuracy' : slim.metrics.streaming_accuracy(predictions,
           labels),
-        'Recall_5': slim.metrics.streaming_recall(
+        'Recall': slim.metrics.streaming_recall(
             logits, labels),
     })
 
