@@ -8,8 +8,8 @@
 % paragraph skip length
 \setlength{\parskip}{1em}
 % line spacing
-\renewcommand{\baselinestretch}{1}
-\setlength{\baselineskip}{30pt}
+\renewcommand{\baselinestretch}{1.1}
+\newcommand{\source}[1]{\vspace{-3pt} \caption*{ \footnotesize{\textit{Source: {#1}}}} }
 
 
 % include files that load packages and define macros
@@ -126,7 +126,7 @@ In the early days, facial expression analysis was restricted to recognising the 
 
 \subsection{Databases}
 
-We direct the reader towards \cite{RefWorks:2} for a complete survey of the main databases available for facial expression analysis. We are interested in databases containing images or videos taken in-the-wild and annotated with facial action units. A such, we will use the Emotionet \cite{RefWorks:1} database which contains 1,000,000 in-the-wild images of emotions. These images were downloaded from the Internet by using specific combinations of keywords and were then automatically annotated with AUs and AU intensities as well as emotion categories by using a novel computer vision algorithm presented in \cite{RefWorks:1}. We also want to annotate valence and arousal, so we will be using the newly available Aff-Wild database \cite{RefWorks:2} which contains video taken in-the-wild (from Youtube) that have been manually annotated with valence and arousal.
+We direct the reader towards \cite{RefWorks:2} for a complete survey of the main databases available for facial expression analysis. We are interested in databases containing images or videos taken in-the-wild and annotated with facial action units. A such, we will use the EmotioNet \cite{RefWorks:1} database which contains 1,000,000 in-the-wild images of emotions. These images were downloaded from the Internet by using specific combinations of keywords and were then automatically annotated with AUs and AU intensities as well as emotion categories by using a novel computer vision algorithm presented in \cite{RefWorks:1}. We also want to annotate valence and arousal, so we will be using the newly available Aff-Wild database \cite{RefWorks:2} which contains video taken in-the-wild (from YouTube) that have been manually annotated with valence and arousal.
 
 For evaluation purposes, we will be using two databases:
 
@@ -135,23 +135,218 @@ For evaluation purposes, we will be using two databases:
 \item \textbf{AMFED} \cite{RefWorks:18}: videos of people reacting to 3 chosen amusing Super Bowl commercials. The people were recorded using their laptop's web camera so the lighting conditions differ from one video to another. Furthermore, each frame was carefully annotated with a subset of facial action units.
 \end{itemize}
 
-\subsection{Deep Learning Models}
+\subsection{Deep Learning}
+
+We use deep learning models in order to, given an image of a facial expression,
+recognise which AUs are active and which aren't as well as estimate the valence and
+arousal of the given facial expression. We use these models as they have proved
+to be able to learn to represent abstract data features (e.g a smile) thanks to
+multiple computational layers
+
+\subsubsection{Deep Convolutional Neural Networks}
+
+In particular, since our task focuses on images (i.e. 2/3-dimensional data), we
+will be using a particular type of deep learning models called deep
+convolutional neural networks (DCNNs). DCNNs consist of a succession of 
+convolutional and pooling layers followed by fully connected layers.
+
+The first block of layers, the convolutional and pooling layers, act as a feature
+extractor. They take as input a raster image $\in \mathcal{R}^{nxm}$ where 
+$n$ is the image height and $m$ the image width, either in greyscale ($\in
+\mathcal{R}^{1xnxm}$) or in RGB colours $\in \mathcal{R}^{3xnxm}$ 
+(where 3 is the depth of the image, i.e. the number of channels) and
+processes it to extract features which will constitute a meaningful
+representation of the image in a lower dimension, i.e. a vector.
+
+\paragraph{Convolutional Layers}
+
+Convolutional layers are the core components of DCNNs. They are were the most
+heavy computations take place and act as feature extractors by applying a set
+of spatially small learnable kernel filters to the input image. 
+These filters could  for instance have a
+size of 7x7x$D$ where the first and the second 7 correspond to the height and the
+width of the filter respectively and $D$ corresponds to the depth (either 1 or 3
+if we are working with RGB input images).
+
+Each filter is applied by ``sliding'' it over the input image and performing a
+convolution at every pixel of the image between the filter and the portion of 
+the image that lies directly beneath it. Mathematically, this gives the
+following: suppose we have an input image $I \in \mathcal{R}^{WxH}$ and a
+filter $F \in \mathcal{R}^{kxk}$ such that $I(a,b)$ denotes the pixel on row
+a and column b of $I$ (assume the same notation for $F$). Then the convolution
+operation  $C(.,.)$ executed at pixel $(a,b)$ of the image is
+
+\begin{equation}
+  C(a,b) = \sum_{i=1}^{k}\sum_{j=1}^{k} F(i,j) \times I(a-i, b-j)
+  \label{eq:convolution}
+\end{equation}small
+
+Therefore, as we slide a filter over the image, we produce a 2D response map
+that corresponds to the convolved features at each spatial location of the
+input image, see Fig.~\ref{fig:conv_op}. Intuitively, each kernel filter learns
+to detect specific features in the input such as as corner or a blob of colour
+
+In the case of a 3 dimensional input volume ($Width \times Height \times Depth$), each filter will also be 3
+dimensional with the depth dimension $D$ matching that of the input. Therefore each
+filter will produce $D$ response maps which are summed together with a bias
+term to produce a 2 dimensional overall response map for that filter.
+
+Finally, when using a $k\times k$ kernel on an $n \times m$ image, the response map will have a smaller
+size of $(n-l)\times(m-l)$ where $l=\frac{k-1}{2}$ ($k$ is usually and odd
+number). While we do want to perform dimensionality reduction before going
+through the fully connected layers, this means that the kernel might omit some
+important features that are at the edges of the image. To solve this problem,
+it is common practice to add $l$ layers of zero-padding on each side of the
+image so that the kernel also covers the edges of the image and the response
+map has the same dimension as the input.
+
+To sum up, here are the inputs and the outputs of a typical convolutional
+layer with $N$ kernel features of size $k \times k$ applied using a stride of
+$s$ on an image with a padding of $p$:
+
+\begin{enumerate}
+  \item \textbf{In}: an image with size $W \times H \times D$ where $W$ is the
+    width of the image, $H$ the height and $D$ the depth
+  \item \textbf{Out}: a volume with size $W_{out} \times H_{out} \times N$
+    where $W_{out} = \frac{W - k + 2p}{s}$, $H_{out} = \frac{H- k + 2p}{s}$ and
+    $N$ is the number of filters used at that layer
+\end{enumerate}
+
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[scale=0.5]{./figures/convolution_example.eps}
+  \caption{Example of a convolution operation at a single spatial location. The
+  orange square represents the kernel filter. Note that no padding has been
+applied here which is why the convolved feature (i.e. the response map) is
+smaller.}
+  \source{http://deeplearning.stanford.edu/wiki/images/6/6c/Convolution\_schematic.gif}
+  \label{fig:conv_op}
+\end{figure}
+
+\paragraph{Pooling Layers}  
+
+As mentioned in the above paragraph, convolutional layers can perform
+dimensionality reduction if no zero-padding is added to the input image.
+However this job generally falls to pooling layers.
+
+As their name suggests, pooling layers group pixels together to reduce them to a
+single pixel. There are several ways to determine the value of the output pixel
+and the most common one is maximum pooling which consists in outputting the
+pixel in the group that has the highest value. Since this is just a static
+operation, there are no learnable parameters involved. The only parameters are
+the spacial extent $p$ (i.e. the width and height) of the pooling region/filter and
+the stride $s$ which defines how many pixels to skip until applying the next
+pooling operation. For instance, a pooling layer with $p=2$ (2x2 filters) and
+$s=2$ will divide the width and height of the input image by 2 (it does not
+change the depth) as can be seen in Fig~\ref{fig:maxpool}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[scale=0.7]{./figures/maxpool.jpeg}
+  \caption{example of a single max pooling operation with a $2 \times 2$ pooling
+  filter and a stride of 2}
+  \source{http://cs231n.github.io/assets/cnn/maxpool.jpeg}
+  \label{fig:maxpool}
+\end{figure}
+
+To sum up here are the inputs and outputs of a pooling layer:
+
+\begin{enumerate}
+  \item \textbf{In}: $k$ images of size $n \times m \times d$ where $n$ is the
+    width, $m$ the height and $d$ the depth of the image
+  \item \textbf{Out}: $k$ responses of size $\left( \frac{n-p}{s} + 1  \right)\times
+    \left( \frac{m-p}{s}+1  \right)\times d$ where $p$ is the width of the
+    square pooling filter and $s$ the stride size
+\end{enumerate}
+
+\paragraph{Fully Connected Layers}
+
+Fully connected layers constitute the second block of the 
+
+Unlike convolutional layers, which are locally connected (each pixel in the
+response map is locally connected to a sub-region of the input), fully
+connected layers have their outputs connected to \textit{every} input.
+
+As such, the activations can be simply calculated via matrix multiplication
+between the inputs and their associated weights and adding a bias term before
+passing all that to an activation function (e.g. ReLu, Sigmoid, Softmax).
+
+It is worth noting that we can easily replace a fully connected layer by an
+equivalent convolutional layer; all that must be done is to match the size of
+the kernel filters to the size of the input image or vector. For instance, in
+the VGG 16[CITE] network, the final convolutional layer outputs 512 feature maps of
+size $7 \times 7$ which are passed on to a fully connected layer with 4096
+neurons. Then we can replace this fully connected layer by a convolutional one
+with 4096 filters of size $7 \times 7$
+
+\paragraph{Dropout Layers}
+
+Dropout layers[CITE] are a simple yet powerful regularisation technique to prevent,
+overfitting. The key idea is to randomly block some neurons from connecting to
+the next layer during training see Fig.~\ref{fig:dropout}. This prevents groups of neurons from
+co-adapting too much and improves the flexibility of the network which
+decreases overfitting.
+
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[scale=1]{./figures/dropout.png}
+  \caption{example dropout layers: the crossed neurons are blocked from sending
+  their inputs to the next layer}
+  \source{https://cambridgespark.com/content/tutorials/convolutional-neural-networks-with-keras/figures/drop.png}
+  \label{fig:dropout}
+\end{figure}
+
+
+\subsubsection{Optimisers}
+
+\paragraph{Stochastic Gradient Descent}
+
+\paragraph{SGD with Nesterov Momentum}
+
+\paragraph{Adagrad}
+
+\paragraph{RMSProp}
+
+\paragraph{Adam}
+
+\subsubsection{Activation functions}
+
+\subsubsection{Models}
 
 The reader is referred to \cite{RefWorks:2} (paragraph 3) for a review of existing deep learning methodologies for facial expression recognition "in-the-wild".
 
-We have used two pre-existing and pretrained models, namely \textbf{VGG} \cite{RefWorks:21} and
+We  use two pre-existing and pre-trained models, namely \textbf{VGG} \cite{RefWorks:21} and
 \textbf{ResNet} [CITE]. These were fine-tuned for specific tasks on our
 database (a subset of the EmotioNet database[CITE])
 
-\subsubsection{VGG 16}
+\paragraph{VGG 16}
 
-\subsubsection{ResNet}
+The VGG 16 network was developped by Karen Simonyan and Andrew Zisserman from
+Oxford University's Visual Geometry Group and was the runner-up in ILSVRC 2014. 
+The ``16'' signifies that there are 16 trainable (weight) layers: 13 convolutional
+layers and 3 fully connected layers.
+
+It's originality comes from the fact that it uses small kernel filters
+($3 \times 3$) at each convolutional layer which are convolved with every
+pixel of the input image (i.e. they use a stride of 1). Furthermore, 
+the number of filters increases as we progress through the convolutional layers.
+The idea behind this is to get the first layers to detect abstract features
+such as lines and get the following layers to refine on that feature.
+
+Finally all 5 max pool layers use a spacial exent of $p=2$ and a stride of
+$s=2$ so that each pool layer divides the width and height of the input image
+by 2 
+ 
+\paragraph{Inception}
 
 \section{EmotioNet Database}
-
+ 
 \subsection{Downloading}
 
-In order to use less space, the authors of the EmotioNet database do not offer a direct download of the \~25k images. Instead, they provide an xlsx file containing one line per image which consists of 61 columns: the first column corresponds to the URL of the image and the next 60 columns correspond to the 60 AUs in ascending order. To download the database, one must therefore read this file line by line, get the image at the specified URL and store it in a file. 
+In order to use less space, the authors of the EmotioNet database do not offer
+a direct download of the  around 25k images. Instead, they provide an xlsx file containing one line per image which consists of 61 columns: the first column corresponds to the URL of the image and the next 60 columns correspond to the 60 AUs in ascending order. To download the database, one must therefore read this file line by line, get the image at the specified URL and store it in a file. 
 
 \subsubsection{Reading the xlsx file}
 
