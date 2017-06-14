@@ -103,6 +103,20 @@ def _multi_label_accuracy(labels, predictions):
     accuracy.append(matches / size)
   return accuracy
 
+def clean_labels_predictions(labels, predictions):
+  if labels.dtype != predictions.dtype:
+    predictions = tf.cast(predictions, labels.dtype)
+  BAD_LABEL = tf.constant(999, dtype=tf.int64)
+  clean_labels = []
+  clean_predictions = []
+  for label, prediction in zip(tf.unstack(labels), tf.unstack(predictions)):
+    delete_mask = tf.not_equal(label, BAD_LABEL)
+    clean_labels.append(tf.boolean_mask(label, delete_mask))
+    clean_predictions.append(tf.boolean_mask(prediction, delete_mask))
+  return tf.stack(clean_labels), tf.stack(clean_predictions)
+
+
+
 def main(_):
   if not FLAGS.dataset_dir:
     raise ValueError('You must supply the dataset directory with --dataset_dir')
@@ -145,8 +159,10 @@ def main(_):
 
     eval_image_size = FLAGS.eval_image_size or network_fn.default_image_size
 
+    # preprocess image
     image = image_preprocessing_fn(image, eval_image_size, eval_image_size)
 
+    # barch of images and corresponding labels
     images, labels = tf.train.batch(
         [image, label],
         batch_size=FLAGS.batch_size,
@@ -174,11 +190,15 @@ def main(_):
       print("Usint multicalss approach\n")
       predictions = tf.argmax(logits, 1)
 
+    clean_labels, clean_predictions = clean_labels_predictions(labels,
+                                                          predictions)
     # preprocess labels
     l_shape = labels.get_shape()
-    labels = tf.py_func(_preprocess_labels, [labels], tf.int64)
-    labels.set_shape(l_shape)
+    #labels = tf.py_func(_preprocess_labels, [labels], tf.int64)
+    #labels.set_shape(l_shape)
     labels = tf.squeeze(labels)
+
+
 
     # partial accuracy
     accuracy = _multi_label_accuracy(labels, predictions)
@@ -186,7 +206,8 @@ def main(_):
     # Define the metrics:
     names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
         'Partial_Accuracy': slim.metrics.streaming_mean(accuracy),
-        'Total_Accuracy': slim.metrics.streaming_accuracy(predictions, labels),
+        'Total_Accuracy' : slim.metrics.streaming_accuracy(predictions,
+          labels),
         'Recall_5': slim.metrics.streaming_recall(
             logits, labels),
     })
