@@ -10,7 +10,7 @@
 set -e
 
 # set optimiser
-OPTIMISER=adam
+OPTIMISER=sgd
 
 # Where the pre-trained InceptionV1 checkpoint is saved to.
 PRETRAINED_CHECKPOINT_DIR=~/Thesis/tmp/vgg_16/checkpoint
@@ -41,7 +41,7 @@ case $1 in
   train)
     if [ ! -d "$TRAIN_DIR" ]; then
       mkdir -p ${TRAIN_DIR}
-      echo "created directory" ${PRETRAINED_CHECKPOINT_DIR}
+      echo "created directory" ${TRAIN_DIR}
     fi
     # Fine-tune only the new layers for 2000 steps.
     python train_image_classifier.py \
@@ -53,7 +53,7 @@ case $1 in
       --checkpoint_path=${PRETRAINED_CHECKPOINT_DIR}/vgg_16.ckpt \
       --checkpoint_exclude_scopes=vgg_16/fc6,vgg_16/fc7,vgg_16/fc8 \
       --trainable_scopes=vgg_16/fc6,vgg_16/fc7,vgg_16/fc8 \
-      --max_number_of_steps=30000 \
+      --max_number_of_steps=5000 \
       --batch_size=32 \
       --learning_rate=0.01 \
       --save_interval_secs=600 \
@@ -65,7 +65,7 @@ case $1 in
   evaluate)
     if [ ! -d "$EVAL_DIR" ]; then
       mkdir -p ${EVAL_DIR}
-      echo "created directory" ${PRETRAINED_CHECKPOINT_DIR}
+      echo "created directory" ${EVAL_DIR}
     fi
 
     # Run evaluation.

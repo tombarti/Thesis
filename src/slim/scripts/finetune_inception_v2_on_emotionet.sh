@@ -15,7 +15,7 @@ MODEL=inception_v2
 DATASET=emotionet
 
 # set optimiser
-OPTIMISER=adam
+OPTIMISER=$2
 
 # Where the pre-trained InceptionV1 checkpoint is saved to.
 PRETRAINED_CHECKPOINT_DIR=~/Thesis/tmp/${MODEL}/checkpoint
@@ -58,7 +58,7 @@ case $1 in
       --checkpoint_path=${PRETRAINED_CHECKPOINT_DIR}/${MODEL}.ckpt \
       --checkpoint_exclude_scopes=InceptionV2/Logits,InceptionV2/AuxLogits \
       --trainable_scopes=InceptionV2/Logits,InceptionV2/AuxLogits \
-      --max_number_of_steps=30000 \
+      --max_number_of_steps=5000 \
       --batch_size=32 \
       --learning_rate=0.01 \
       --save_interval_secs=600 \
@@ -77,7 +77,7 @@ case $1 in
     python eval_image_classifier.py \
       --checkpoint_path=${TRAIN_DIR} \
       --eval_dir=${EVAL_DIR} \
-      --dataset_name=${DATASET_DIR} \
+      --dataset_name=${DATASET} \
       --dataset_split_name=validation \
       --dataset_dir=${DATASET_DIR} \
       --model_name=${MODEL}
