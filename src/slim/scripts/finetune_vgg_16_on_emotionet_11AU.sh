@@ -10,10 +10,10 @@
 set -e
 
 # select which dataset to train on
-DATASET=emotionet
+DATASET=emotionet-11AU
 
 # set optimiser
-OPTIMISER=sgd
+OPTIMISER=adam
 
 # Where the pre-trained InceptionV1 checkpoint is saved to.
 PRETRAINED_CHECKPOINT_DIR=~/Thesis/checkpoints
@@ -25,7 +25,7 @@ TRAIN_DIR=~/Thesis/tmp/${DATASET}/vgg_16/train/${OPTIMISER}
 EVAL_DIR=~/Thesis/tmp/${DATASET}/vgg_16/eval/${OPTIMISER}
 
 # Where the dataset is saved to.
-DATASET_DIR=~/Thesis/data/records
+DATASET_DIR=~/Thesis/data/records11
 
 # Download the pre-trained checkpoint.
 if [ ! -d "$PRETRAINED_CHECKPOINT_DIR" ]; then
