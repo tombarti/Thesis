@@ -2,6 +2,7 @@
 data/images/**
 data/partitioned/**
 data/records/**
+data/records11/**
 data/imgs/**
 
 # ignore checkpoint files

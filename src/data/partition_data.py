@@ -72,14 +72,15 @@ def main(_):
   
   # get list of file names in specified data directory
   fnames = u.get_fnames_in_dir(DATA_DIR)
+  num_files = len(fnames)
 
   # shuffle the files and make the randomness repeatable
-  shuffle_indices = list(range(len(fnames)))
+  shuffle_indices = list(range(num_files))
   np.random.seed(RANDOM_SEED)
   np.random.shuffle(shuffle_indices)
   fnames = [fnames[i] for i in shuffle_indices]
 
-  slice_index = int(len(fnames) * VAL_PROP)
+  slice_index = int(num_files * VAL_PROP)
 
   # copy to validation directory
   for fn in tqdm(fnames[:slice_index]):

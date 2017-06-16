@@ -23,13 +23,15 @@ from datasets import flowers
 from datasets import imagenet
 from datasets import mnist
 from datasets import emotionet
+from datasets import emotionet_11AU
 
 datasets_map = {
-    'cifar10'    : cifar10,
-    'flowers'    : flowers,
-    'imagenet'   : imagenet,
-    'mnist'      : mnist,
-    'emotionet'  : emotionet
+    'cifar10'       : cifar10,
+    'flowers'       : flowers,
+    'imagenet'      : imagenet,
+    'mnist'         : mnist,
+    'emotionet'     : emotionet,
+    'emotionet-11AU': emotionet_11AU
 }
 
 

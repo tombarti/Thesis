@@ -395,19 +395,6 @@ def _preprocess_labels(labels):
         labels[i,j] = 0
   return labels
 
-def _custom_one_hot_labels(labels):
-  """
-  Args:
-    labels: [batch_size, num_classes], the labels to convert
-  Returns:
-    one_hot_labels: [batch_size, num_classes, num_classes], the one hot labels
-  """
-  one_hot_labels = []
-  for label in tf.unstack(labels):
-    one_hot_labels.append(tf.diag(label))
-  return tf.stack(one_hot_labels)
-
-
 def main(_):
   if not FLAGS.dataset_dir:
     raise ValueError('You must supply the dataset directory with --dataset_dir')
@@ -477,10 +464,12 @@ def main(_):
 
       #labels = slim.one_hot_encoding(
           #labels, dataset.num_classes - FLAGS.labels_offset)
+
+      # preprocess the labels to replace any 999 element with a 0
       l_shape = labels.get_shape()
       labels = tf.py_func(_preprocess_labels, [labels], tf.int64)
       labels.set_shape(l_shape)
-      #labels = _custom_one_hot_labels(labels)
+
       batch_queue = slim.prefetch_queue.prefetch_queue(
           [images, labels], capacity=2 * deploy_config.num_clones)
 
@@ -499,6 +488,8 @@ def main(_):
       # Specify the loss function #
       #############################
 
+      # use sigmoid activation function when an image can have more than one
+      # class at the same time
       if FLAGS.is_multi_label:
         print(" - Using multi label approach for loss function")
         tf.losses.sigmoid_cross_entropy(
@@ -506,6 +497,8 @@ def main(_):
             logits=logits,
             label_smoothing=FLAGS.label_smoothing,
             weights=1.0)
+      # otherwise use softmax if an image can only have one class at the same
+      # time, i.e. classes are mutually exclusive
       else:
         print(" - Using multi class approach for loss function")
         if 'AuxLogits' in end_points:

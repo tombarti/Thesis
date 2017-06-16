@@ -81,7 +81,7 @@ tf.app.flags.DEFINE_string('train_directory', '../../data/partitioned/train/',
                            'Training data directory')
 tf.app.flags.DEFINE_string('validation_directory', '../../data/partitioned/validation/',
                            'Validation data directory')
-tf.app.flags.DEFINE_string('output_directory', '../../data/records/',
+tf.app.flags.DEFINE_string('output_directory', '../../data/records11/',
                            'Output data directory')
 
 tf.app.flags.DEFINE_integer('train_shards', 2,
@@ -99,6 +99,8 @@ tf.app.flags.DEFINE_string('labels_file',
 
 
 FLAGS = tf.app.flags.FLAGS
+
+DISFA = [0,1,3,4,5,8,11,16,19,24,25]
 
 
 def _int64_feature(value):
@@ -267,7 +269,7 @@ def _process_image_files_batch(coder, thread_index, ranges, name, filenames,
   for s in range(num_shards_per_batch):
     # Generate a sharded version of the file name, e.g. 'train-00002-of-00010'
     shard = thread_index * num_shards_per_batch + s
-    output_filename = '%s-%.5d-of-%.5d.record' % (name, shard, num_shards)
+    output_filename = '%s-%.5d-of-%.5d-11AU.record' % (name, shard, num_shards)
     output_file = os.path.join(FLAGS.output_directory, output_filename)
     writer = tf.python_io.TFRecordWriter(output_file)
 
@@ -381,18 +383,20 @@ def _find_image_files(data_dir, labels_file):
   filenames = []
   labels = []
   texts = []
-  c = 0
   # Construct the list of texts and labels based on list of files.
   for fn in fnames:
     try:
       dl_dict[u.del_file_ext(fn)]
     except Exception as e:
-      c += 1
       continue
-    label_arr = dl_dict[u.del_file_ext(fn)]
+    label_arr = np.array(dl_dict[u.del_file_ext(fn)])
+    label_arr = label_arr[DISFA]
+    if '999' in label_arr:
+      continue
     labels.append(list(map(int, label_arr)))
     texts.append(build_text(label_arr))
     filenames.append(fn)
+
 
   assert len(filenames) == len(labels)
   # add path to directory to filenames
