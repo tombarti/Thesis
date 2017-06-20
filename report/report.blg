@@ -5,45 +5,45 @@ The style file: plain.bst
 Database file #1: refs.bib.bib
 Warning--can't use both volume and number fields in RefWorks:13
 Warning--empty year in RefWorks:2
-You've used 10 entries,
+You've used 9 entries,
             2118 wiz_defined-function locations,
-            567 strings with 6132 characters,
-and the built_in function-call counts, 3703 in all, are:
-= -- 340
-> -- 204
+            561 strings with 5911 characters,
+and the built_in function-call counts, 3285 in all, are:
+= -- 302
+> -- 176
 < -- 3
-+ -- 80
-- -- 70
-* -- 274
-:= -- 619
-add.period$ -- 30
-call.type$ -- 10
-change.case$ -- 64
++ -- 69
+- -- 60
+* -- 236
+:= -- 545
+add.period$ -- 27
+call.type$ -- 9
+change.case$ -- 56
 chr.to.int$ -- 0
-cite$ -- 12
-duplicate$ -- 138
-empty$ -- 276
-format.name$ -- 70
-if$ -- 773
+cite$ -- 11
+duplicate$ -- 127
+empty$ -- 249
+format.name$ -- 60
+if$ -- 690
 int.to.chr$ -- 0
-int.to.str$ -- 10
-missing$ -- 11
-newline$ -- 53
-num.names$ -- 20
-pop$ -- 67
+int.to.str$ -- 9
+missing$ -- 10
+newline$ -- 48
+num.names$ -- 18
+pop$ -- 61
 preamble$ -- 1
-purify$ -- 55
+purify$ -- 48
 quote$ -- 0
-skip$ -- 103
+skip$ -- 97
 stack$ -- 0
-substring$ -- 192
-swap$ -- 35
+substring$ -- 166
+swap$ -- 34
 text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 38
+type$ -- 34
 warning$ -- 2
-while$ -- 28
-width$ -- 12
-write$ -- 110
+while$ -- 25
+width$ -- 10
+write$ -- 99
 (There were 2 warnings)

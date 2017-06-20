@@ -5,22 +5,30 @@
 \BOOKMARK [3][]{subsubsection.8}{2.1.2 Interpreting emotions}{subsection.4}% 5
 \BOOKMARK [2][]{subsection.13}{2.2 Facial Expression Analysis}{section.3}% 6
 \BOOKMARK [2][]{subsection.14}{2.3 Databases}{section.3}% 7
-\BOOKMARK [2][]{subsection.15}{2.4 Deep Learning}{section.3}% 8
-\BOOKMARK [3][]{subsubsection.16}{2.4.1 Deep Convolutional Neural Networks}{subsection.15}% 9
-\BOOKMARK [3][]{subsubsection.29}{2.4.2 Optimisers}{subsection.15}% 10
-\BOOKMARK [3][]{subsubsection.35}{2.4.3 Activation functions}{subsection.15}% 11
-\BOOKMARK [3][]{subsubsection.36}{2.4.4 Models}{subsection.15}% 12
-\BOOKMARK [1][]{section.39}{3 EmotioNet Database}{}% 13
-\BOOKMARK [2][]{subsection.40}{3.1 Downloading}{section.39}% 14
-\BOOKMARK [3][]{subsubsection.41}{3.1.1 Reading the xlsx file}{subsection.40}% 15
-\BOOKMARK [3][]{subsubsection.42}{3.1.2 Downloading the image}{subsection.40}% 16
-\BOOKMARK [3][]{subsubsection.43}{3.1.3 Storing the image}{subsection.40}% 17
-\BOOKMARK [2][]{subsection.44}{3.2 Converting to TFRecords}{section.39}% 18
-\BOOKMARK [2][]{subsection.45}{3.3 Extending TF-Slim datasets}{section.39}% 19
-\BOOKMARK [2][]{subsection.46}{3.4 Annotating Valence and Arousal}{section.39}% 20
-\BOOKMARK [1][]{section.47}{4 Action Unit Classification}{}% 21
-\BOOKMARK [2][]{subsection.48}{4.1 VGG 16}{section.47}% 22
-\BOOKMARK [2][]{subsection.49}{4.2 ResNet}{section.47}% 23
-\BOOKMARK [1][]{section.50}{5 Valence and Arousal Regression}{}% 24
-\BOOKMARK [2][]{subsection.51}{5.1 VGG 16}{section.50}% 25
-\BOOKMARK [2][]{subsection.52}{5.2 ResNet}{section.50}% 26
+\BOOKMARK [2][]{subsection.16}{2.4 Deep Learning}{section.3}% 8
+\BOOKMARK [3][]{subsubsection.19}{2.4.1 Deep Convolutional Neural Networks}{subsection.16}% 9
+\BOOKMARK [3][]{subsubsection.33}{2.4.2 Activation functions}{subsection.16}% 10
+\BOOKMARK [3][]{subsubsection.41}{2.4.3 Loss functions}{subsection.16}% 11
+\BOOKMARK [3][]{subsubsection.46}{2.4.4 Optimisers}{subsection.16}% 12
+\BOOKMARK [3][]{subsubsection.58}{2.4.5 Models}{subsection.16}% 13
+\BOOKMARK [3][]{subsubsection.64}{2.4.6 Evaluation Measures}{subsection.16}% 14
+\BOOKMARK [1][]{section.72}{3 EmotioNet Database}{}% 15
+\BOOKMARK [2][]{subsection.73}{3.1 Downloading}{section.72}% 16
+\BOOKMARK [3][]{subsubsection.74}{3.1.1 Reading the xlsx file}{subsection.73}% 17
+\BOOKMARK [3][]{subsubsection.75}{3.1.2 Downloading the image}{subsection.73}% 18
+\BOOKMARK [3][]{subsubsection.76}{3.1.3 Storing the image}{subsection.73}% 19
+\BOOKMARK [2][]{subsection.77}{3.2 Converting to TFRecords}{section.72}% 20
+\BOOKMARK [2][]{subsection.78}{3.3 Extending TF-Slim datasets}{section.72}% 21
+\BOOKMARK [2][]{subsection.79}{3.4 Annotating Valence and Arousal}{section.72}% 22
+\BOOKMARK [1][]{section.80}{4 Action Unit Prediction}{}% 23
+\BOOKMARK [2][]{subsection.81}{4.1 Adapting training scripts}{section.80}% 24
+\BOOKMARK [3][]{subsubsection.82}{4.1.1 Duplicating the Logits}{subsection.81}% 25
+\BOOKMARK [3][]{subsubsection.83}{4.1.2 Cleaning the Labels}{subsection.81}% 26
+\BOOKMARK [3][]{subsubsection.84}{4.1.3 Changing the final activation function}{subsection.81}% 27
+\BOOKMARK [2][]{subsection.85}{4.2 Prediction of 60 Action Units}{section.80}% 28
+\BOOKMARK [3][]{subsubsection.86}{4.2.1 Fine-tuning}{subsection.85}% 29
+\BOOKMARK [3][]{subsubsection.87}{4.2.2 Evaluation}{subsection.85}% 30
+\BOOKMARK [1][]{section.88}{5 Valence and Arousal Regression}{}% 31
+\BOOKMARK [2][]{subsection.89}{5.1 VGG 16}{section.88}% 32
+\BOOKMARK [2][]{subsection.90}{5.2 ResNet}{section.88}% 33
+\BOOKMARK [1][]{section.91}{6 Future Work}{}% 34

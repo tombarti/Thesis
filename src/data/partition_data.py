@@ -22,39 +22,18 @@ tf.app.flags.DEFINE_string(
     'Directory containing the training (images) dataset')
 
 tf.app.flags.DEFINE_string(
-    'data_dir', '../../data/images/',
+    'data_dir', '../../data/video18/',
     'Directory containing the whole image dataset')
 
 tf.app.flags.DEFINE_string(
-    'data_file', '../../data/EmotioNet_FACS.csv',
+    'data_file', '../../data/data.json',
     'Name (including path) of the file containing the urls+labels')
 
 tf.app.flags.DEFINE_float(
-    'val_proportion', 0.3,
+    'val_proportion', 0.2,
     'Proportion of dataset to be assigned to validation.'
     'should be between 0.0 and 1.0')
 
-
-def build_data_labels_dict():
-  """Builds dictionary of filenames with their associated label
-
-  Returns:
-    data: dict, dictionary where key=filename and value=label
-  """
-  data = []
-  # get urls & associated labels from csv file
-  with open('EmotioNet_FACS.csv', 'r') as fh:
-    data = fh.readlines()[1:]
-
-  data = [d.split(',') for d in data]
-  # replace urls with filenames (remove file extension as well)
-  for d in data:
-    # get the file name
-    fname = u.url_to_filename(d[0][1:-1])
-    # remove file extension
-    d[0] = u.del_file_ext(fname)
-  data = [(d[0], d[1:]) for d in data]
-  return dict(data)
 
 def main(_):
   # get flags

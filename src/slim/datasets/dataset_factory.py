@@ -24,6 +24,7 @@ from datasets import imagenet
 from datasets import mnist
 from datasets import emotionet
 from datasets import emotionet_11AU
+from datasets import valar
 
 datasets_map = {
     'cifar10'       : cifar10,
@@ -31,7 +32,8 @@ datasets_map = {
     'imagenet'      : imagenet,
     'mnist'         : mnist,
     'emotionet'     : emotionet,
-    'emotionet-11AU': emotionet_11AU
+    'emotionet-11AU': emotionet_11AU,
+    'valar'         : valar
 }
 
 

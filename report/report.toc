@@ -3,38 +3,56 @@
 \contentsline {section}{\numberline {2}Background}{5}{section.3}
 \contentsline {subsection}{\numberline {2.1}Facial Expressions}{5}{subsection.4}
 \contentsline {subsubsection}{\numberline {2.1.1}Facial Action Coding System (FACS)}{5}{subsubsection.5}
-\contentsline {subsubsection}{\numberline {2.1.2}Interpreting emotions}{6}{subsubsection.8}
-\contentsline {paragraph}{Discrete case}{6}{section*.9}
-\contentsline {paragraph}{Continuous case}{6}{section*.10}
+\contentsline {subsubsection}{\numberline {2.1.2}Interpreting emotions}{5}{subsubsection.8}
+\contentsline {paragraph}{\numberline {2.1.2.1}Discrete case}{5}{paragraph.9}
+\contentsline {paragraph}{\numberline {2.1.2.2}Continuous case}{6}{paragraph.10}
 \contentsline {subsection}{\numberline {2.2}Facial Expression Analysis}{7}{subsection.13}
-\contentsline {subsection}{\numberline {2.3}Databases}{8}{subsection.14}
-\contentsline {subsection}{\numberline {2.4}Deep Learning}{8}{subsection.15}
-\contentsline {subsubsection}{\numberline {2.4.1}Deep Convolutional Neural Networks}{8}{subsubsection.16}
-\contentsline {paragraph}{Convolutional Layers}{9}{section*.17}
-\contentsline {paragraph}{Pooling Layers}{10}{section*.22}
-\contentsline {paragraph}{Fully Connected Layers}{11}{section*.26}
-\contentsline {paragraph}{Dropout Layers}{12}{section*.27}
-\contentsline {subsubsection}{\numberline {2.4.2}Optimisers}{12}{subsubsection.29}
-\contentsline {paragraph}{Stochastic Gradient Descent}{12}{section*.30}
-\contentsline {paragraph}{SGD with Nesterov Momentum}{12}{section*.31}
-\contentsline {paragraph}{Adagrad}{12}{section*.32}
-\contentsline {paragraph}{RMSProp}{12}{section*.33}
-\contentsline {paragraph}{Adam}{12}{section*.34}
-\contentsline {subsubsection}{\numberline {2.4.3}Activation functions}{13}{subsubsection.35}
-\contentsline {subsubsection}{\numberline {2.4.4}Models}{13}{subsubsection.36}
-\contentsline {paragraph}{VGG 16}{13}{section*.37}
-\contentsline {paragraph}{ResNet}{13}{section*.38}
-\contentsline {section}{\numberline {3}EmotioNet Database}{13}{section.39}
-\contentsline {subsection}{\numberline {3.1}Downloading}{13}{subsection.40}
-\contentsline {subsubsection}{\numberline {3.1.1}Reading the xlsx file}{14}{subsubsection.41}
-\contentsline {subsubsection}{\numberline {3.1.2}Downloading the image}{14}{subsubsection.42}
-\contentsline {subsubsection}{\numberline {3.1.3}Storing the image}{15}{subsubsection.43}
-\contentsline {subsection}{\numberline {3.2}Converting to TFRecords}{15}{subsection.44}
-\contentsline {subsection}{\numberline {3.3}Extending TF-Slim datasets}{16}{subsection.45}
-\contentsline {subsection}{\numberline {3.4}Annotating Valence and Arousal}{16}{subsection.46}
-\contentsline {section}{\numberline {4}Action Unit Classification}{17}{section.47}
-\contentsline {subsection}{\numberline {4.1}VGG 16}{17}{subsection.48}
-\contentsline {subsection}{\numberline {4.2}ResNet}{17}{subsection.49}
-\contentsline {section}{\numberline {5}Valence and Arousal Regression}{17}{section.50}
-\contentsline {subsection}{\numberline {5.1}VGG 16}{17}{subsection.51}
-\contentsline {subsection}{\numberline {5.2}ResNet}{17}{subsection.52}
+\contentsline {subsection}{\numberline {2.3}Databases}{7}{subsection.14}
+\contentsline {subsection}{\numberline {2.4}Deep Learning}{8}{subsection.16}
+\contentsline {subsubsection}{\numberline {2.4.1}Deep Convolutional Neural Networks}{9}{subsubsection.19}
+\contentsline {paragraph}{\numberline {2.4.1.1}Convolutional Layers}{10}{paragraph.21}
+\contentsline {paragraph}{\numberline {2.4.1.2}Pooling Layers}{11}{paragraph.26}
+\contentsline {paragraph}{\numberline {2.4.1.3}Fully Connected Layers}{13}{paragraph.30}
+\contentsline {paragraph}{\numberline {2.4.1.4}Dropout Layers}{13}{paragraph.31}
+\contentsline {subsubsection}{\numberline {2.4.2}Activation functions}{13}{subsubsection.33}
+\contentsline {paragraph}{\numberline {2.4.2.1}Sigmoid}{14}{paragraph.34}
+\contentsline {paragraph}{\numberline {2.4.2.2}Softmax}{15}{paragraph.36}
+\contentsline {paragraph}{\numberline {2.4.2.3}ReLU}{15}{paragraph.38}
+\contentsline {subsubsection}{\numberline {2.4.3}Loss functions}{16}{subsubsection.41}
+\contentsline {paragraph}{\numberline {2.4.3.1}Mean Squared Error}{16}{paragraph.42}
+\contentsline {paragraph}{\numberline {2.4.3.2}Cross Entropy}{16}{paragraph.44}
+\contentsline {subsubsection}{\numberline {2.4.4}Optimisers}{17}{subsubsection.46}
+\contentsline {paragraph}{\numberline {2.4.4.1}Stochastic Gradient Descent}{17}{paragraph.48}
+\contentsline {paragraph}{\numberline {2.4.4.2}SGD with Momentum}{18}{paragraph.50}
+\contentsline {paragraph}{\numberline {2.4.4.3}Adagrad}{19}{paragraph.53}
+\contentsline {paragraph}{\numberline {2.4.4.4}RMSProp}{19}{paragraph.56}
+\contentsline {subsubsection}{\numberline {2.4.5}Models}{20}{subsubsection.58}
+\contentsline {paragraph}{\numberline {2.4.5.1}VGG 16}{20}{paragraph.59}
+\contentsline {paragraph}{\numberline {2.4.5.2}Inception V2}{20}{paragraph.61}
+\contentsline {subsubsection}{\numberline {2.4.6}Evaluation Measures}{22}{subsubsection.64}
+\contentsline {paragraph}{\numberline {2.4.6.1}True/False Positives and Negatives}{22}{paragraph.65}
+\contentsline {paragraph}{\numberline {2.4.6.2}Accuracy}{23}{paragraph.67}
+\contentsline {paragraph}{\numberline {2.4.6.3}Partial Accuracy}{24}{paragraph.68}
+\contentsline {paragraph}{\numberline {2.4.6.4}Recall}{24}{paragraph.69}
+\contentsline {paragraph}{\numberline {2.4.6.5}Precision}{24}{paragraph.70}
+\contentsline {paragraph}{\numberline {2.4.6.6}F1 Measure}{24}{paragraph.71}
+\contentsline {section}{\numberline {3}EmotioNet Database}{24}{section.72}
+\contentsline {subsection}{\numberline {3.1}Downloading}{24}{subsection.73}
+\contentsline {subsubsection}{\numberline {3.1.1}Reading the xlsx file}{24}{subsubsection.74}
+\contentsline {subsubsection}{\numberline {3.1.2}Downloading the image}{25}{subsubsection.75}
+\contentsline {subsubsection}{\numberline {3.1.3}Storing the image}{26}{subsubsection.76}
+\contentsline {subsection}{\numberline {3.2}Converting to TFRecords}{26}{subsection.77}
+\contentsline {subsection}{\numberline {3.3}Extending TF-Slim datasets}{27}{subsection.78}
+\contentsline {subsection}{\numberline {3.4}Annotating Valence and Arousal}{28}{subsection.79}
+\contentsline {section}{\numberline {4}Action Unit Prediction}{28}{section.80}
+\contentsline {subsection}{\numberline {4.1}Adapting training scripts}{28}{subsection.81}
+\contentsline {subsubsection}{\numberline {4.1.1}Duplicating the Logits}{28}{subsubsection.82}
+\contentsline {subsubsection}{\numberline {4.1.2}Cleaning the Labels}{29}{subsubsection.83}
+\contentsline {subsubsection}{\numberline {4.1.3}Changing the final activation function}{29}{subsubsection.84}
+\contentsline {subsection}{\numberline {4.2}Prediction of 60 Action Units}{30}{subsection.85}
+\contentsline {subsubsection}{\numberline {4.2.1}Fine-tuning}{30}{subsubsection.86}
+\contentsline {subsubsection}{\numberline {4.2.2}Evaluation}{31}{subsubsection.87}
+\contentsline {section}{\numberline {5}Valence and Arousal Regression}{31}{section.88}
+\contentsline {subsection}{\numberline {5.1}VGG 16}{31}{subsection.89}
+\contentsline {subsection}{\numberline {5.2}ResNet}{31}{subsection.90}
+\contentsline {section}{\numberline {6}Future Work}{31}{section.91}
