@@ -13,22 +13,28 @@ set -e
 MODEL=inception_v2
 
 # select which dataset to train or eval on
-DATASET=emotionet
+DATASET=emotionet-11AU
 
 # set optimiser
 OPTIMISER=$2
 
+# set the batch size
+BATCH_SIZE=$3
+
+# set the learning rate
+LEARNING_RATE=$4
+
 # Where the pre-trained InceptionV1 checkpoint is saved to.
-PRETRAINED_CHECKPOINT_DIR=~/Thesis/tmp/${MODEL}/checkpoint
+PRETRAINED_CHECKPOINT_DIR=~/Thesis/checkpoints
 
 # Where the training (fine-tuned) checkpoint and logs will be saved to.
-TRAIN_DIR=~/Thesis/tmp/${MODEL}/train/${OPTIMISER}
+TRAIN_DIR=~/Thesis/tmp/${DATASET}/${MODEL}/train/${OPTIMISER}/${BATCH_SIZE}/${LEARNING_RATE}
 
 # Where the evaluation checkpoint and logs will be saved to
-EVAL_DIR=~/Thesis/tmp/${MODEL}/eval/${OPTIMISER}
+EVAL_DIR=~/Thesis/tmp/${DATASET}/${MODEL}/eval/${OPTIMISER}/${BATCH_SIZE}/${LEARNING_RATE}
 
 # Where the dataset is saved to.
-DATASET_DIR=~/Thesis/data/records
+DATASET_DIR=~/Thesis/data/records11
 
 # Download the pre-trained checkpoint.
 if [ ! -d "$PRETRAINED_CHECKPOINT_DIR" ]; then
@@ -59,9 +65,9 @@ case $1 in
       --checkpoint_path=${PRETRAINED_CHECKPOINT_DIR}/${MODEL}.ckpt \
       --checkpoint_exclude_scopes=InceptionV2/Logits,InceptionV2/AuxLogits \
       --trainable_scopes=InceptionV2/Logits,InceptionV2/AuxLogits \
-      --max_number_of_steps=5000 \
-      --batch_size=32 \
-      --learning_rate=0.01 \
+      --max_number_of_steps=4000 \
+      --batch_size=${BATCH_SIZE} \
+      --learning_rate=${LEARNING_RATE} \
       --save_interval_secs=600 \
       --save_summaries_secs=600 \
       --log_every_n_steps=100 \

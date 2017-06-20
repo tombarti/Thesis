@@ -266,7 +266,17 @@ def main(_):
         'Total_Accuracy' : slim.metrics.streaming_accuracy(predictions,
           labels),
         'Recall': slim.metrics.streaming_recall(
-            logits, labels),
+            predictions, labels),
+        'False_Negatives': slim.metrics.streaming_false_negatives(predictions,
+          labels),
+        'False_Positives': slim.metrics.streaming_false_positives(predictions,
+          labels),
+        'True_Negatives': slim.metrics.streaming_true_negatives(predictions,
+          labels),
+        'True_Positives': slim.metrics.streaming_true_positives(predictions,
+          labels),
+        'AUC': slim.metrics.streaming_auc(predictions, labels,
+          num_thresholds=500)
     })
 
     # Print the summaries to screen.

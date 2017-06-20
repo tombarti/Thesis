@@ -1,5 +1,5 @@
 #!/bin/bash
 
-./scripts/finetune_inception_v2_on_emotionet.sh evaluate rmsprop
-./scripts/finetune_inception_v2_on_emotionet.sh evaluate momentum
-./scripts/finetune_inception_v2_on_emotionet.sh evaluate sgd
+./scripts/finetune_vgg_16_on_emotionet_11AU.sh train rmsprop 32 0.1
+./scripts/finetune_vgg_16_on_emotionet_11AU.sh train rmsprop 32 0.01
+./scripts/finetune_vgg_16_on_emotionet_11AU.sh train rmsprop 32 0.001
