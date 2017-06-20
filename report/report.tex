@@ -8,15 +8,17 @@
 % paragraph skip length
 \setlength{\parskip}{1em}
 % line spacing
-\renewcommand{\baselinestretch}{1.1}
+\renewcommand{\baselinestretch}{1.3}
 \newcommand{\source}[1]{\vspace{-3pt} \caption*{ \footnotesize{\textit{Source: {#1}}}} }
+\setcounter{secnumdepth}{6}
+\newcommand{\para}[1]{\paragraph{#1}\mbox{}\\}
 
 
 % include files that load packages and define macros
 \input{includes} % various packages needed for maths etc.
 \input{notation} % short-hand notation and macros
 
-
+\usepackage{bm}
 \usepackage[toc,page]{appendix}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -126,22 +128,60 @@ In the early days, facial expression analysis was restricted to recognising the 
 
 \subsection{Databases}
 
-We direct the reader towards \cite{RefWorks:2} for a complete survey of the main databases available for facial expression analysis. We are interested in databases containing images or videos taken in-the-wild and annotated with facial action units. A such, we will use the EmotioNet \cite{RefWorks:1} database which contains 1,000,000 in-the-wild images of emotions. These images were downloaded from the Internet by using specific combinations of keywords and were then automatically annotated with AUs and AU intensities as well as emotion categories by using a novel computer vision algorithm presented in \cite{RefWorks:1}. We also want to annotate valence and arousal, so we will be using the newly available Aff-Wild database \cite{RefWorks:2} which contains video taken in-the-wild (from YouTube) that have been manually annotated with valence and arousal.
+We direct the reader towards \cite{RefWorks:2} for a complete survey of the
+main databases available for facial expression analysis. We are interested in
+databases containing images or videos taken in-the-wild and annotated with
+facial action units. As such, we will use the EmotioNet \cite{RefWorks:1}
+database which contains 1,000,000 in-the-wild images of emotions. These images
+were downloaded from the Internet by using specific combinations of keywords,
+such as ``feeling angry'' or ``feeling happy'',
+and were then automatically annotated with AUs and AU intensities as well as
+emotion categories by using a novel computer vision algorithm presented in
+\cite{RefWorks:1}.
 
-For evaluation purposes, we will be using two databases:
+However, we are interested in a subset of 25,000 images from this database that
+were manually annotated as we consider the accuracy of these annotations to be
+higher than those produced by the algorithm mentioned above. This subset was
+annotated for Action Units activation with '1' meaning that the action unit is
+active, '0' that is not active and '999' that the action unit is occluded or
+that it has not been annotated. An example image from this dataset is
+presented in Fig.~\ref{fig:emotionet_example}
 
-\begin{itemize}
-\item \textbf{DISFA} \cite{RefWorks:17}: videos of young adults watching video clips intended to elicit certain emotions. Although these videos are not in-the-wild since they were all recorded with the same stereo camera in similar lighting conditions, each frame has been manually annotated with AUs and their respective intensities.
-\item \textbf{AMFED} \cite{RefWorks:18}: videos of people reacting to 3 chosen amusing Super Bowl commercials. The people were recorded using their laptop's web camera so the lighting conditions differ from one video to another. Furthermore, each frame was carefully annotated with a subset of facial action units.
-\end{itemize}
+\begin{figure}[ht]
+  \centering
+  \includegraphics[scale=0.7]{./figures/emotionet_example.png}
+  \caption{Example image from the EmotioNet database. Only two AUs, 6 and 12,
+  are labelled as active (i.e. '1'). AUs 1, 2, 4, 5, 9, 17, 20, 25, and 26
+are labelled as inactive and the remaining AUs are labelled as occluded or '999'}
+  \label{fig:emotionet_example}
+\end{figure}
+
+
 
 \subsection{Deep Learning}
 
 We use deep learning models in order to, given an image of a facial expression,
 recognise which AUs are active and which aren't as well as estimate the valence and
 arousal of the given facial expression. We use these models as they have proved
-to be able to learn to represent abstract data features (e.g a smile) thanks to
-multiple computational layers
+to be able to learn to represent abstract data features (e.g a smile) by using
+multiple computational layers.
+
+More formally, a deep learning model is a neural network with a set of
+$n$ layers. Let $a_j^i$ be the output, or activation, of the $j^{th}$ neuron of
+the $i^{th}$ layer for $i = 1 \dots n$ where the case $i=1$ corresponds to the
+input vector. Then we can relate $a_j^i$ to the outputs of the previous layer
+as follows:
+
+\begin{align}
+  a_j^i &= f\left( z_j^i  \right)\\
+  z_j^i &= s_j^i + b_j^i 
+  \label{eq:NN}
+\end{align}
+
+Where $s_j^i$ is the some weighted sum of all or part of the activations
+$a_j^{i-1}$ for $j = 1 \dots m_{i-1}$ (where $m_{i-1}$ is the number of
+neurons in layer $i-1$) of the previous layer, $b_j^i$ is a bias term and
+$f(.)$ is an activation function which ensures non linearity.
 
 \subsubsection{Deep Convolutional Neural Networks}
 
@@ -149,6 +189,15 @@ In particular, since our task focuses on images (i.e. 2/3-dimensional data), we
 will be using a particular type of deep learning models called deep
 convolutional neural networks (DCNNs). DCNNs consist of a succession of 
 convolutional and pooling layers followed by fully connected layers.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[scale=0.8]{figures/cnn.png}
+  \caption{example of a DCNN architecture with a succession of convolutional +
+  max pooling layers followed by a bloc of fully connected layers}
+  \source{http://personal.ie.cuhk.edu.hk/~ccloy/project\_target\_code/images/fig3.png}
+  \label{fig:cnn}
+\end{figure}
 
 The first block of layers, the convolutional and pooling layers, act as a feature
 extractor. They take as input a raster image $\in \mathcal{R}^{nxm}$ where 
@@ -291,7 +340,7 @@ decreases overfitting.
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[scale=1]{./figures/dropout.png}
+  \includegraphics[scale=1.5]{./figures/dropout.png}
   \caption{example dropout layers: the crossed neurons are blocked from sending
   their inputs to the next layer}
   \source{https://cambridgespark.com/content/tutorials/convolutional-neural-networks-with-keras/figures/drop.png}
@@ -299,34 +348,274 @@ decreases overfitting.
 \end{figure}
 
 
-\subsubsection{Optimisers}
-
-\paragraph{Stochastic Gradient Descent}
-
-\paragraph{SGD with Nesterov Momentum}
-
-\paragraph{Adagrad}
-
-\paragraph{RMSProp}
-
-\paragraph{Adam}
 
 \subsubsection{Activation functions}
 
-\subsubsection{Models}
+Each trainable layer in the network also has an activation function, through
+which it passes its outputs before sending them to the next layer.
+The main role of activation functions is to provide non-linearity to the network.
+Intuitively, this enables deep networks to better fulfill their representation
+learning power. Indeed, without these functions, deep networks (or any neural
+network) would only be learning a linear combination of the input data which is
+quite limiting. We now go through the main activation functions used in neural
+networks.
+
+% ---------- S I G M O I D ----------
+\para{Sigmoid}\label{para:sigmoid}
+
+The sigmoid activation function is a special case of the logistic function and
+is defined as follows:
+
+\begin{equation}
+  f(x) = \frac{1}{1 + e^{-x}}
+  \label{eq:sigmoid}
+\end{equation}
+
+It was a popular activation function until the arrival of the
+ReLU~(\ref{para:relu}) which dealt better for the main shortcoming of this one.
+Indeed, the sigmoid function squashes everything between 0 and 1 therefore, as
+the absolute value of the input increases, the gradient at that point
+decreases. So the gradient tends towards 0 as the input tends towards infinity.
+This is called the vanishing gradient problem and is a problem as when
+performing backpropagation, the updates will not change the weights
+significantly which considerably slows training at best or prevents us to reach
+a local minimum at worst.
+
+Today, the sigmoid activation function, just like softmax (see paragraph below)
+is used on the very last layer of the network, to make the outputs look like
+probabilities.
+
+% ---------- S O F T M A X ----------
+\para{Softmax}\label{para:softmax}
+Also known as the Normalised Exponential, the softmax activation function is
+defined as follows: consider the $i^{th}$ layer of a neural network and let
+$\bm{z}^i$ be the vector of raw activations of this layer as defined in 
+\eqref{eq:NN}, then 
+
+\begin{equation}
+  a_j^i = f(\bm{z}^i)_j = \frac{e^{z_j^i}}{\sum^{m_{i}}_{k=1} e^{z_k^i}}
+  \label{eq:softmax}
+\end{equation}
+
+Where $m_i$ denotes the number of neurons in layer i.
+
+From a probability theory standpoint, the softmax activation function
+calculates a probability distribution over what we can consider as $m_i$
+categories. It is therefore mostly used on the very last layer of neural
+networks trained to classify inputs into a single category. Therefore when
+using a softmax activation function on the last layer, one assumes that these
+categories are mutually exclusive, meaning that training or test instance can
+not belong to two or more categories at the same time.
+
+% ---------- R E L U ----------
+\para{ReLU}\label{para:relu}
+In its simplest form, the Rectified Linear Unit[CITE] for a scalar input $x$ is defined as
+follows:
+
+\begin{equation}
+  f(x) = \max(0,x)
+  \label{eq:relu}
+\end{equation}
+
+Variations have recently emerged such as the Leaky ReLU[CITE] which is defined
+as:
+
+\begin{equation}
+  f(x) = 
+  \begin{cases}
+    x, & \text{if}\ x >0\\
+    0.01x, & \text{otherwise}
+  \end{cases}
+  \label{eq:leaky_relu}
+\end{equation}
+
+There are two main advantages to using ReLUs which make them the most popular
+activation functions today. The first is that it significantly reduces the
+likelihood of the gradient to vanish (or be extremely small) since when
+$x >0$, the gradient has a constant value, unlike the sigmoid activation
+function described above whose gradient becomes increasingly small as
+$x$ increases. This makes learning significantly faster. The second advantage
+is that using ReLU gives more sparse representations of the data as any
+negative input is mapped to $0$. Sparse representations seem to be more
+efficient as they encode a \textit{de facto} feature selection (if an input is
+mapped to 0 then that ``feature'' is ignored) and therefore
+have more potential to uncover true relationships in the data.
+
+\subsubsection{Loss functions}\label{sec:loss}
+
+Loss functions are at the core of deep neural networks as they define the
+objective where are trying to achieve. It is therefore crucial to select the
+the appropriate loss function depending on the task performed by the network.
+
+\para{Mean Squared Error}\label{para:mse}
+
+The Mean Squared Error is the most widely used loss function for regression
+problems. For a data set $\left( \bm{x}_i, y_i \right)_{i=1}^N$ with $N$
+examples, it is defined as:
+
+\begin{equation}
+  MSE = \frac{1}{2N}\sum_{i=1}^N (y_i - \hat{y}_i)^2
+  \label{eq:mse}
+\end{equation}
+
+Where $\hat{y}$ is the network's prediction using input $\bm{x}_i$.
+
+\para{Cross Entropy}\label{para:cross_entropy}
+
+The cross entropy loss function is generally used in classification tasks, when
+the network outputs a probability distribution over the classes in which an
+example can be categorised, either by using the softmax (\ref{para:softmax}) or the
+sigmoid (\ref{para:sigmoid}) activation function.
+
+Suppose the network outputs a probability distribution $\hat{\bm{y}}^ii$ for
+$m$ categories and the target
+probability distribution is $\bm{y}^ii$ for $i=1\dots N$ examples. 
+Then the cross entropy loss for a single example is defined as:
+
+\begin{equation}
+  H(\bm{y}^i, \hat{\bm{y}}^i) = -\frac{1}{m} \sum_{k=1}^m \bm{y}_k^i
+  \log(\hat{\bm{y}}_k^i)
+  \label{eq:cross_entropy}
+\end{equation}
+
+And the cross entropy loss of the whole data set is just the average of the
+losses of each example in the data set as defined in Eq.
+\eqref{eq:cross_entropy}.
+
+\subsubsection{Optimisers}\label{sec:optimisers}
+
+Now that we have overviewed the different elements that make up the structure
+of a network, we must look at how to update the trainable parameters (i.e. the
+weights). The key value that we use to update a parameter is the gradient of the loss function
+(\ref{sec:loss}) with respect to that parameter to perform gradient descent.
+This gradient,  $\Delta\bm{w}$, is computed using the backpropagation[CITE] algorithm and
+the most simple way to apply it to update the parameters $\bm{w}$ is as follows:
+
+\begin{equation}
+  \bm{w} \leftarrow \bm{w} - \alpha \Delta\bm{w}
+  \label{eq:grad_descent}
+\end{equation}
+
+where $\alpha$, the learning rate, controls the magnitude of the updates. In this
+setting, $\Delta\bm{w}$ is calculated after a forward pass of the entire
+training data set. However this is computationally inefficient or unfeasible so
+we use different techniques.
+
+\para{Stochastic Gradient Descent}\label{para:sgd}
+
+The first technique, Stochastic Gradient Descent (SGD), computes the gradient
+$\Delta\bm{w}_{batch}$ w.r.t. the parameters after a forward pass of a small batch 
+$(\bm{x}_{batch}, \bm{y}_{batch})$ of training examples, 
+usually 128 or 256, instead of the entire dataset.
+It then updates the parameters as in Eq.~\eqref{eq:grad_descent}:
+
+\begin{equation}
+  \bm{w} \leftarrow \bm{w} - \alpha \Delta\bm{w}_{batch}
+  \label{eq:sgd}
+\end{equation}
+
+Since the gradients are only calculated from a small sample of the dataset,
+the variance of the updates between each batch will be higher, which is why we
+typically use a small learning rate of $\alpha = 0.1$ to $\alpha = 0.001$.
+
+This technique is stochastic because we randomly shuffle the data before
+dividing it into batches and calculating and applying the updates. Ideally,
+this should be done before each epoch, where and epoch is defined as a pass
+over the entire data set.
+
+\para{SGD with Momentum}\label{para:sgd_momentum}
+
+The objective of the parameter updates is to descend the gradient of the loss
+function to find a good local minimum. Viewing this gradient as a hill/ravine
+that we must descend, SGD with momentum uses a physical approach by
+considering that we are ``rolling'' the parameter vector down that hill. As such,
+Under this approach, the parameter vector has a velocity $v$ which is used to
+determine its position (i.e. the update). This velocity is directly affected by
+the gradients that we compute:
+
+\begin{align}
+  \bm{v} &= \mu \bm{v} - \alpha \Delta \bm{w}_{batch}\\
+  \bm{w} &= \bm{w} + \bm{v}
+  \label{eq:sgd_momentum}
+\end{align}
+
+Where $\alpha$ is the learning rate as in \eqref{eq:sgd} and $\mu \in (0,1]$ is referred
+to as the momentum, although from a physics standpoint, it can be assimilated
+to friction and is generally set to $0.9$.
+
+SGD with momentum almost always boasts better convergence rates than vanilla
+SGD. This is because as we approach a local minimum, the updates become smaller
+and smaller (as the gradient tends to 0 at stationary points) so vanilla SGD
+takes more time to converge to that minimum. Adding momentum on the other hand
+ensures that this slow-down does not occur or is minimised.
+\para{Adagrad}\label{para:adagrad}
+
+The next set of parameter updating techniques possess the particularity of
+having a per-parameter adaptive learning rate. Adapting the learning rate can
+be viewed as refining the search for a local minimum. Indeed, we first start
+with a relatively large learning rate as we want to explore the gradient space
+with big steps. Once a region seems promising, we would like to focus on it and
+reduce size of the steps as we do not want to miss a local minimum. This can be
+done by reducing the learning rate $\alpha$ when we are close to a local
+maximum. While we can adapt the learning rate globally for all parameters,
+recent research has focused on methods that adapt the learning rate per-parameter.
+\textbf{Adagrad}, first proposed by Duchi et al.[CITE], is one of these
+methods and is defined as follows: suppose we have just calculated a gradient
+$\delta\bm{w}$ for a mini batch, then the update is applied as follows:
+
+\begin{align}
+  \bm{c} &\leftarrow \bm{c} + \left( \Delta\bm{w} \right)^2
+  \label{eq:adagrad_cache}\\
+  \bm{w} &\leftarrow \bm{w} - \frac{\alpha}{\sqrt{\bm{c}} + \varepsilon}
+  \Delta\bm{w}
+  \label{eq:adagrad}
+\end{align}
+
+Here $\bm{c}$, which has the same dimensions as the parameters, acts as a cache
+that stores the squared values of the previous gradients. We then divide the
+learning rate $\alpha$ by the square root of $\bm{c}$ (plus some small positive
+constant $\varepsilon$ to ensure that we do not divide by zero) so that the
+more updates a parameter gets, the smaller its learning rate.
+
+\para{RMSProp}\label{para:rmsprop}
+
+One downside of Adagrad(~\ref{para:adagrad}) is that the learning rate is
+monotonically decreasing which does not allow for flexibility as the learning
+rate diminishes quickly.
+\textbf{RMSProp} attempts to alleviate this by introducing a decay rate
+parameter $\gamma$ when updating the cache $\bm{c}$. The rest is identical to
+(\ref{para:adagrad}). As such the only change is that Eq.
+\eqref{eq:adagrad_cache} becomes:
+
+\begin{equation}
+  \bm{c} = \gamma \bm{c} + (1-\gamma) \left( \Delta\bm{w} \right)^2
+  \label{eq:rmsprop}
+\end{equation}
+
+
+
+\subsubsection{Models}\label{sec:models}
 
 The reader is referred to \cite{RefWorks:2} (paragraph 3) for a review of existing deep learning methodologies for facial expression recognition "in-the-wild".
 
-We  use two pre-existing and pre-trained models, namely \textbf{VGG} \cite{RefWorks:21} and
-\textbf{ResNet} [CITE]. These were fine-tuned for specific tasks on our
+In terms of deep learning models, we use two pre-existing and pre-trained models, namely \textbf{VGG} \cite{RefWorks:21} and
+\textbf{Inception V2} [CITE]. These were fine-tuned for specific tasks on our
 database (a subset of the EmotioNet database[CITE])
 
-\paragraph{VGG 16}
+\para{VGG 16}\label{para:vgg16}
 
-The VGG 16 network was developped by Karen Simonyan and Andrew Zisserman from
+The VGG 16 network was developed by Karen Simonyan and Andrew Zisserman from
 Oxford University's Visual Geometry Group and was the runner-up in ILSVRC 2014. 
 The ``16'' signifies that there are 16 trainable (weight) layers: 13 convolutional
-layers and 3 fully connected layers.
+layers and 3 fully connected layers, see Fig.~\ref{fig:vgg16}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[scale=0.7]{figures/vgg16.png}
+  \caption{structure of the VGG 16 deep convolutional network}
+  \source{https://www.cs.toronto.edu/~frossard/post/vgg16/vgg16.png}
+  \label{fig:vgg16}
+\end{figure}
 
 It's originality comes from the fact that it uses small kernel filters
 ($3 \times 3$) at each convolutional layer which are convolved with every
@@ -335,11 +624,102 @@ the number of filters increases as we progress through the convolutional layers.
 The idea behind this is to get the first layers to detect abstract features
 such as lines and get the following layers to refine on that feature.
 
-Finally all 5 max pool layers use a spacial exent of $p=2$ and a stride of
+Finally all 5 max pool layers use a spacial extent of $p=2$ and a stride of
 $s=2$ so that each pool layer divides the width and height of the input image
 by 2 
  
-\paragraph{Inception}
+\para{Inception V2}\label{para:inception_v2}
+
+Inception networks build upon a key insight from the Network in Network
+(NiN) paper[CITE, Lin et al 2014]: convolutional layers can only learn linear
+combination of the inputs, to enable them to learn non linear
+features, Lin et al replaced their linear kernel filters with multilayer
+perceptrons. 
+
+Researchers at Google used this insight to create the inception
+module which for the first version of the network (v2) is detailed in
+Fig.~\ref{fig:inception_module}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[scale=0.3]{figures/inception_module.png}
+  \caption{The inception module with the concatenation of a pool, a $1 \times
+  1$, a $3 \times 3$ and a $5 \times 5$ convolution operations}
+  \source{https://i.stack.imgur.com/zTinD.png}
+  \label{fig:inception_module}
+\end{figure}
+
+Indeed, the $1\times 1$ convolution layer is mathematically equivalent to a
+multilayer perceptron and since it is immediately followed by a ReLU layer
+(not shown in Fig.~\ref{fig:inception_module}), it allows the network to learn
+non linear features. 
+
+Furthermore, this initial $1 \times 1$ convolution layer drastically reduces
+the number of trainable parameters when it is used before the $3 \times 3$ or
+$5 \times 5$ convolutional layers. This therefore allows the Inception network to
+combine a max pool, a perceptron, a $3 \times 3$ and a $5 \times 5$ convolution
+operation into a single layer/module at no extra computational cost,
+effectively allowing the network to be even deeper.
+
+With the second version of the Inception network, which we will be using, the
+inception module depicted in Fig.~\ref{fig:inception_module} differs slightly.
+Indeed, the authors factorise the $5 \times 5$ convolutional layer into two
+consecutive $3 \times 3$ convolutional layers as shown in
+Fig.~\ref{fig:inception_v2_module}.
+
+\begin{figure}[ht]
+
+  \centering
+  \includegraphics[scale=0.8]{figures/inception_v2_module.png}
+  \caption{The inception module with the concatenation of a pool, a $1 \times
+  1$, a $3 \times 3$ and a $5 \times 5$ convolution operations}
+  \source{http://davidstutz.de/wordpress/wp-content/uploads/2017/03/inception\_arch\_1.png}
+  \label{fig:inception_v2_module}
+\end{figure}
+
+
+\subsubsection{Evaluation Measures}
+
+Once a model has been trained, we would like to evaluate its performance on an
+independent and unseen test set. To do this various measures exist to provide
+meaningful insights about the quality of the model.
+
+\para{True/False Positives and Negatives}
+
+Consider a binary classification task, e.g. an action unit is either active
+(positive class) or inactive (negative class). Then a model's prediction for
+this task can fall into one four categories. If the model predicts an example
+to be positive and the actual value is also positive, then it is a
+\textit{True Positive} (TP). If it predicts the example to be negative when in fact
+it actually is positive then this is a \textit{Type II} error and the prediction
+is a \textit{False Negative} (FN).
+
+Conversely, if the example's actual label is negative and the model predicts
+it to be positive, then it is a \textit{Type I} error and the prediction is a
+\textit{False Positive} (FP). Finally if the model predicts the example to be
+negative when it is in fact negative, then it is a \textit{True Negative}
+(TN).
+
+Using these simple definitions, we can now define more complex evaluation
+measures.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[scale=0.7]{figures/tf_pos_neg.png}
+  \caption{The four categories a model's prediction can fall in}
+  \source{https://i.stack.imgur.com/0OxEo.png}
+  \label{fig:tf_pos_neg}
+\end{figure}
+
+\para{Accuracy}\label{para:accuracy}
+
+\para{Partial Accuracy}\label{para:partial_accuracy}
+
+\para{Recall}\label{para:recall}
+
+\para{Precision}\label{para:precision}
+
+\para{F1 Measure}\label{para:f1_measure}
 
 \section{EmotioNet Database}
  
@@ -423,19 +803,120 @@ load up a video and start annotating the frames for valence. Once all the
 frames of the video are annotated with valence, we annotate them with arousal
 and move on to the next video.
 
-\section{Action Unit Classification}
+\section{Action Unit Prediction}
 
-This task was performed on the full data set
+The first deep learning task consisted in fine-tuning a model for AU
+classification on the EmotioNet data set that was downloaded in the previous
+section. We used two different pre-trained models, VGG 16 and Inception V2, to
+this end.
 
-\subsection{VGG 16}
+\subsection{Adapting training scripts}
 
-\subsection{ResNet}
+\subsubsection{Duplicating the Logits}
+
+The \texttt{tensorflow/models/slim} source code provides a generic training
+script to train or fine-tune VGG and Inception models on different data sets.
+This training script offers considerable flexibility as virtually any training
+parameter can be specified using and exhaustive set of flags.
+
+However, this training script expects 1-dimensional labels (e.g. 'Car') when
+our data has 2-dimensional labels. This caused problems when trying to compute
+the loss function as there was a mismatch between the logits (the outputs of
+the network) and the labels. Indeed, the script performs one-hot encoding on
+the labels which adds a dimension and transforms each label into a
+$60 \times 60$ matrix whereas the logits are a vector of $1 \times 60$. To
+solve this problem, we simply duplicated each logit by the number of classes
+(60) so as to obtain a $60 \times 60$ matrix with identical rows (equal to the
+original logit). 
+
+This works from a mathematical view point as we are using the softmax cross
+entropy loss function (see (\ref{para:cross_entropy})) and so each entry in this new logit matrix will be
+multiplied by its corresponding entry in the one-hot label matrix. But since it
+is one-hot, only one entry per row is 0 which means that the one-hot label
+matrix effectively selects the appropriate logit entry and disregards the
+others by multiplying them by zero.
+
+\subsubsection{Cleaning the Labels}\label{sec:cleaning}
+
+In the labels provided by the data set, each action unit can take on 3 values:
+0 for inactive, 1 for active and 999 for undefined. However, we would like them
+to only take on 2 discrete values: 0 and 1. As such, it was necessary to
+preprocess the labels before feeding them to the loss function in order to
+replace every 999 by a 0. We will later see that this does not lead to
+desirable results.
+
+\subsubsection{Changing the final activation function}
+
+Originally, the training script used \texttt{softmax\_cross\_entropy\_with\_logits}
+as its loss functions. The unscaled logits were therefore passed through a softmax (\ref{para:softmax}) 
+function before computing their cross entropy. This lead to some very poor
+results with the training loss growing to numbers greater than $10e^6$. This is
+because the softmax function calculates the probability of the training
+example/image to be one of the classes, therefore assuming that these classes
+are mutually exclusive so that that the image can not belong to two classes at
+the same time. However, this is not the case for our data set as images can
+have multiple AUs/classes active at the same moment. As such, the probabilities
+calculated by the softmax function will be low (as there is no clear
+``winner'' class) which gives large values when we take the negative log of
+these probabilities in the cross entropy. 
+
+Therefore, the \texttt{softmax\_cross\_entropy\_with\_logits} loss function is
+not adapted to our situation. Instead, we must treat each action unit as an
+individual binary (is it activated or not, i.e. 1 or 0 respectively)
+classification task. This can easily be done by replacing the softmax
+activation function by a sigmoid activation function (\ref{para:sigmoid}). Indeed, the sigmoid
+function does not normalise each value in the logit array with respect to the
+others, thus treating each class as independent of one another. As such all
+that had to be done was to replace the current loss function with the following
+\texttt{sigmoid\_cross\_entropy\_with\_logits}. This also mean that it was
+unnecessary to duplicate the logits before passing them to the loss function as no
+one-hot encoding of the labels is necessary.
+
+\subsection{Prediction of 60 Action Units}\label{sec:pred_60_au}
+
+We started the action unit prediction task with the whole set of action
+units. That is, for each training image,  we learn to predict if each of the 60
+AUs are either active or inactive. Note that as discussed in
+(\ref{sec:cleaning}) we marked the AUs labelled as occluded as inactive. Though
+this is should not be done, it was impossible to simply remove any example
+whose label contained a '999' as we would be left with an empty data set since
+each label contained at least one AU marked as '999'.
+
+\subsubsection{Fine-tuning}
+
+The training consisted in fine-tuning the VGG 16 and Inception V2 (see
+\ref{sec:models}) on a data set split of 15,000 examples.
+For the VGG 16 models, this meant training the weights of
+the final three convolutional layers whilst freezing the remaining
+convolutional layers whereas for Inception V2, this meant training the final
+logits layer whilst freezing the rest of the network. 
+
+Both networks were trained using the RMSprop optimiser (\ref{para:rmsprop})
+using a decay rate of $\gamma = 0.9$ and a momentum parameter of 0.9 as well.
+We also used an initial learning rate of $0.01$ in both cases, with an
+exponential decay using a decay factor of $0.94$ and an interval of 2 epochs
+between two decays of the learning rate. The batch size was set to $32$ and
+finally a weight decay of $0.00004$ for the L2 regularisation term. 
+
+We carried out the fine-tuning for $5,000$ steps which amounts to about
+$11$ epochs.
+
+\subsubsection{Evaluation}
+
+Evaluation was carried out on a separate and independent data set split of 6400
+images.
+
+For each model, we report the total accuracy, the partial accuracy, the recall,
+the precision, and the F1 measure.
+
 
 \section{Valence and Arousal Regression}
 
 \subsection{VGG 16}
 
 \subsection{ResNet}
+
+\section{Future Work}
 
 
 

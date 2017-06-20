@@ -1,4 +1,4 @@
-\begin{thebibliography}{10}
+\begin{thebibliography}{1}
 
 \bibitem{RefWorks:1}
 C.~Fabian Benitez-Quiroz, Ramprakash Srinivasan, and Aleix~M. Martinez.
@@ -22,12 +22,6 @@ Paul Ekman, Wallace~V. Friesen, and Joseph~C. Hager.
 B.~Fasel and Juergen Luettin.
 \newblock Automatic facial expression analysis: a survey.
 \newblock {\em Pattern Recognition}, 36(1):259--275, 1 2003.
-
-\bibitem{RefWorks:17}
-S.~Mohammad Mavadati, Mohammad~H. Mahoor, Kevin Bartlett, Philip Trinh, and
-  Jeffrey~F. Cohn.
-\newblock Disfa: A spontaneous facial action intensity database.
-\newblock {\em IEEE Transactions on Affective Computing}, 4(2):151--160, 2013.
 
 \bibitem{RefWorks:18}
 Daniel McDuff, Rana Kaliouby, Thibaud Senechal, May Amr, Jeffrey Cohn, and

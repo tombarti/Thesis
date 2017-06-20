@@ -3,7 +3,10 @@ data/images/**
 data/partitioned/**
 data/records/**
 data/records11/**
+data/records_valar/**
 data/imgs/**
+data/video18/**
+data/data.json
 
 # ignore checkpoint files
 **/*.ckpt
