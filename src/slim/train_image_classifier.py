@@ -466,9 +466,9 @@ def main(_):
           #labels, dataset.num_classes - FLAGS.labels_offset)
 
       # preprocess the labels to replace any 999 element with a 0
-      l_shape = labels.get_shape()
-      labels = tf.py_func(_preprocess_labels, [labels], tf.int64)
-      labels.set_shape(l_shape)
+      # l_shape = labels.get_shape()
+      # labels = tf.py_func(_preprocess_labels, [labels], tf.int64)
+      # labels.set_shape(l_shape)
 
       batch_queue = slim.prefetch_queue.prefetch_queue(
           [images, labels], capacity=2 * deploy_config.num_clones)
@@ -568,6 +568,9 @@ def main(_):
       update_ops.append(variable_averages.apply(moving_average_variables))
 
     print(" - Using {} optimiser".format(FLAGS.optimizer))
+    print(" - Using {} learning rate".format(FLAGS.learning_rate))
+    print(" - Using {} batch size".format(FLAGS.batch_size))
+
     # Variables to train.
     variables_to_train = _get_variables_to_train()
 

@@ -13,7 +13,7 @@ set -e
 DATASET=emotionet
 
 # set optimiser
-OPTIMISER=sgd
+OPTIMISER=rmsprop
 
 # Where the pre-trained InceptionV1 checkpoint is saved to.
 PRETRAINED_CHECKPOINT_DIR=~/Thesis/checkpoints
