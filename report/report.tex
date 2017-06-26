@@ -2,7 +2,7 @@
 
 \newcommand{\reporttitle}{Deep Learning For Facial Expression Analysis}
 \newcommand{\reportauthor}{Tom Bartissol}
-\newcommand{\reporttype}{Interim Report}
+\newcommand{\reporttype}{Final Report}
 \newcommand{\cid}{00824562}
 
 % paragraph skip length
@@ -20,6 +20,10 @@
 
 \usepackage{bm}
 \usepackage[toc,page]{appendix}
+\usepackage{slashbox}
+\usepackage{subcaption}
+
+\newcommand{\ackname}{Acknowledgements}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -27,20 +31,73 @@
 % front page
 \input{titlepage}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% ABSTRACT
+\cleardoublepage
+\begin{abstract}
+  Humans can communicate through multiple channels including speech and facial
+  expressions. Enabling machines to understand these channels would unlock a
+  multitude of opportunities for Human Computer Interaction and while progress
+  has been made on the speech side, facial expressions remain more complex for a
+  machine to understand.
+
+  However, with the advent of Deep Learning models in recent years, this goal might be within
+  reach. We use two such models, Inception V2 and VGG 16, to classify Action Units with a maximal
+  accuracy of 88.9\% on a subset of EmotioNet and to predict Valence and
+  Arousal of facial expressions with a best root mean squared error of 3.71.
+\end{abstract}
+\cleardoublepage
+
+\thispagestyle{empty}
+\section*{\ackname}
+
+I would like to thank the following people for their contributions to this
+project:
+
+\begin{itemize}
+  \item my project supervisor, Stefanos Zafeiriou
+  \item PhD student Dimitris Kollias for taking the time to patiently answer my
+    questions
+  \item my friends and family for their continuous and unconditional support
+\end{itemize}
+
+\cleardoublepage
 \tableofcontents
 \clearpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% Main document
 
+
+
 \section{Introduction}
 
-The ability to analyse human facial expressions is an active area of research with exciting near-future real-world applications ranging from law enforcement to advertising (measuring how positively or negatively people respond to an ad). It would also be at the core of any system capable of intelligent Human-Computer Interaction (HCI). Indeed, for such interactions to be life-like, the Computer should be able to recognise human emotions which are expressed through multiple channels, an important one being facial expressions. \textit{Interpreting} the recognised facial expressions into the six \textit{basic emotions} \cite{RefWorks:12} (see Table ~\ref{tab:emo-au}) would allow the Computer to identify human emotions to some extent.
+The ability to analyse human facial expressions is an active area of research
+with exciting near-future real-world applications ranging from law enforcement
+to advertising (measuring how positively or negatively people respond to an
+ad). It would also be at the core of any system capable of intelligent
+Human-Computer Interaction (HCI). Indeed, for such interactions to be
+life-like, the Computer should be able to recognise human emotions which are
+expressed through multiple channels, an important one being facial expressions.
+\textit{Interpreting} the recognised facial expressions into the six
+\textit{basic emotions} \cite{RefWorks:12} (see Table ~\ref{tab:emo-au}), 
+or better yet, on two continuous emotion dimensions,
+would allow the Computer to identify human emotions to some extent.
 
 Facial Expressions result from the contraction of a facial muscle or a group of facial muscles and the visually perceptible changes due to such contractions have been codified by Ekman and Friesen into the well-known Facial Action Coding System (FACS) \cite{RefWorks:10} which provides labels, facial \textit{Action Units} (AUs), for the actions of a muscle or group of muscles. For instance, AU 12 corresponds the lip corner puller and if it is active at the same time as AU 6, which corresponds to the cheek raiser, then the subject is smiling and this could be interpreted as happiness.
 
-We are therefore concerned with two problems (i) identifying these AUs and (ii) estimating continuous emotion dimensions: valence (how positive or negative the emotion is) and arousal (how intense) instead of discrete emotions such as the six basic emotions. Since changes in muscular activity are not instant but last between 250ms and 5s \cite{RefWorks:11}, we are interested in data with a temporal dimension, that is videos. More specifically, whereas the majority of previous work has been conducted on data sets captured in constrained environment and/or using acted or posed facial expressions \cite{RefWorks:2}, we are interested in the so called "\textit{in-the-wild}" videos, which are recorded in different lighting conditions with different poses and most accurately represent spontaneous facial expressions.
+We are therefore concerned with two problems (i) identifying whether these AUs
+are active or not and (ii) estimating continuous emotion dimensions: valence 
+(how positive or negative the emotion is) and arousal (how intense) instead of 
+discrete emotions such as the six basic emotions. We are therefore interested
+in images of facial expressions. More specifically, whereas the majority of previous 
+work has been conducted on data sets captured in constrained environment and/or using 
+acted or posed facial expressions \cite{RefWorks:2}, we are interested in the so 
+called "\textit{in-the-wild}" images, which are taken in different lighting conditions 
+with different poses and most accurately represent spontaneous facial expressions.
 
-To achieve this, we will use end-to-end deep learning models, namely ResNet, VGG and ResNet-Inception. Each model will be trained/fine tuned to jointly solve problems (i) and (ii) on data taken in-the-wild. Finally we will evaluate these models on existing and established benchmarks and databases (not necessarily in-the-wild).
-
+To achieve this, we will use end-to-end deep learning models, namely VGG 16 and
+Inception V2. Each model will be fine-tuned to solve problems (i) and (ii) on
+data taken in-the-wild, and more precisely on the EmotioNet \cite{RefWorks:1} database 
+Finally we will evaluate these models on an independent subset of the same
+database.
 
 \clearpage
 \section{Background}
@@ -49,11 +106,25 @@ To achieve this, we will use end-to-end deep learning models, namely ResNet, VGG
 
 \subsubsection{Facial Action Coding System (FACS)}
 
-The human head having a finite number of muscles, the number of visually perceptible changes that can be caused by the contraction or relaxation of one or more of these muscles, that is the number of facial expressions, is finite. We can therefore taxonomise these facial changes into a coding system. Although there exists a few such coding systems \cite{RefWorks:13}, the most popular and used coding system is the FACS \cite{RefWorks:10}. FACS breaks down each visually perceptible change into facial \textit{Action Units} (AUs) which roughly corresponds to the contraction or relaxation of individual facial muscles. The activation of one or more AU creates a facial expression. Some examples of AUs and their associated facial are listed in Figure ~\ref{fig:fau}.
+The human head having a finite number of muscles, the number of visually
+perceptible changes that can be caused by the contraction or relaxation of one
+or more of these muscles, that is the number of facial expressions, is finite.
+We can therefore taxonomise these facial changes into a coding system. Although
+there exists a few such coding systems \cite{RefWorks:13}, the most popular and
+used coding system is the FACS \cite{RefWorks:10}. FACS breaks down each
+\textit{visually perceptible} change into facial \textit{Action Units} (AUs) which roughly corresponds to the contraction or relaxation of individual facial muscles. The activation of one or more AU creates a facial expression. Some examples of AUs and their associated facial are listed in Figure ~\ref{fig:fau}.
 
-On top of this taxonomy, FACS also provides an intensity score, A-E (maximum-minimum), to rate how pronounced each AU is in a facial expression (see Table ~\ref{tab:scale-au}). For instance AU 12A would indicate that the lip corners are slightly pulled whereas AU 12E would indicate that they are maximally pulled.
+On top of this taxonomy, FACS also provides an intensity score, A-E
+(maximum-minimum), to rate how \textit{pronounced} each AU is in a facial expression (see Table ~\ref{tab:scale-au}). For instance AU 12A would indicate that the lip corners are slightly pulled whereas AU 12E would indicate that they are maximally pulled.
 
-Finally, AUs do not activate instantly. Indeed, an AU is firstly in a neutral state, then, when it starts activating, muscles contract and the AU is said to be in an \textit{onset} phase, once the muscles are contracted and the AU is at its peak, it is said to be in an \textit{apex} phase, finally, when the muscles start to relax and the AU starts to disappear, the AU is said to be in an \textit{offset} phase before returning to normal. So the activation of an AU generally follows the following pattern: neutral - onset - apex - offset - neutral.
+Finally, AUs do not activate instantly. Indeed, an AU is firstly in a neutral
+state, then, when it starts activating, muscles contract and the AU is said to
+be in an \textit{onset} phase, once the muscles are contracted and the AU is at
+its peak, it is said to be in an \textit{apex} phase, finally, when the muscles
+start to relax and the AU starts to disappear, the AU is said to be in an
+\textit{offset} phase before returning to normal. So the activation of an AU
+generally follows the following pattern: neutral - onset - apex - offset -
+neutral, see Fig.~\ref{fig:onset}.
 
 \begin{table}[ht]
 \centering
@@ -61,10 +132,15 @@ Finally, AUs do not activate instantly. Indeed, an AU is firstly in a neutral st
  \hline
  Intensity & description\\
  \hline
+ \hline
  A & Trace                \\
+ \hline
  B & Slight               \\
+ \hline
  C & Marked or Pronounced \\
+ \hline
  D & Severe or Extreme    \\
+ \hline
  E & Maximal              \\
  \hline
 \end{tabular}
@@ -79,26 +155,42 @@ Finally, AUs do not activate instantly. Indeed, an AU is firstly in a neutral st
 \label{fig:fau}
 \end{figure}
 
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1\textwidth]{figures/onset.jpg}
+  \caption{The neutral-onset-apex-offset-neutral cycle of an action unit
+  activation}
+  \source{http://proj.ncku.edu.tw/research/articles/e/20150508/images/150427015117V6MKPn.jpg}
+  \label{fig:onset}
+\end{figure}
+
 \subsubsection{Interpreting emotions}
 
-\paragraph{Discrete case}
-Emotions can roughly be broken down into six \textit{basic emotions} \cite{RefWorks:12}, seven if we count the neutral emotion. We can then interpret a facial expression into one of these seven categories. Note that this is only an interpretation as emotions are expressed though multiple channels such as body language or voice and facial expressions are only one of these channels.
+\para{Discrete case}
+Emotions can roughly be broken down into six \textit{basic emotions} \cite{RefWorks:12}, 
+seven if we count the neutral emotion. We can then interpret a facial expression into 
+one of these seven categories. Note that this is only an interpretation as emotions 
+are expressed through multiple channels such as body language or voice and facial 
+expressions are only one of these channels.
 
 
-\paragraph{Continuous case}
+\para{Continuous case}
 This is the case in which we are interested. Emotions can be represented using two continuous dimensions:
 
 \begin{itemize}
 \item \textbf{Valence}: characterises the attractiveness or aversivenes of an emotion, that is respectfully how positive or negative the emotion is.
-\item \textbf{Arousal}: characterises the intensity of the emotion
+\item \textbf{Arousal}: characterises the intensity of the emotion, as such high
+  arousal would indicate a state of increased activity and alertness of mind and body
+  (e.g. fear or excitement).
 \end{itemize}
 
 We can therefore represent emotions in a two dimensional coordinate system using their valence and arousal values, see Figure ~\ref{fig:arval} 
 
 \begin{figure}[h]
 \centering
-\includegraphics[scale=0.5]{./figures/valence_arousal_plot.eps}
+\includegraphics[scale=0.6]{./figures/valence_arousal_plot.png}
 \caption{Plotting emotions according to their valence and arousal}
+\source{https://www.researchgate.net/profile/Yi-hsuan\_Yang/publication/254004106}
 \label{fig:arval}
 \end{figure}
 
@@ -108,12 +200,19 @@ We can therefore represent emotions in a two dimensional coordinate system using
  \hline
  Emotion & AUs\\
  \hline
+ \hline
  Neutral   & 0                     \\
+ \hline
  Happiness & 6, 12                 \\
+ \hline
  Sadness   & 1, 4, 14              \\
+ \hline
  Surprise  & 1, 2, 5B, 26          \\
+ \hline
  Fear      & 1, 2, 4, 5, 7, 20, 26 \\
+ \hline
  Anger     & 4, 5, 7, 23           \\
+ \hline
  Disgust   & 9, 15, 16             \\
  \hline
 \end{tabular}
@@ -126,7 +225,7 @@ We can therefore represent emotions in a two dimensional coordinate system using
 
 In the early days, facial expression analysis was restricted to recognising the six basic emotions. Furthermore, computer vision techniques were used to extract features from input images and then classify them instead of using the \textit{end-to-end} deep learning techniques we will use in this project. As indicated in \cite{RefWorks:2}, the interested reader is directed towards \cite{RefWorks:18,RefWorks:19} for a thorough overview of these early techniques.
 
-\subsection{Databases}
+\subsection{Database - EmotioNet}\label{sec:databases}
 
 We direct the reader towards \cite{RefWorks:2} for a complete survey of the
 main databases available for facial expression analysis. We are interested in
@@ -180,14 +279,14 @@ as follows:
 
 Where $s_j^i$ is the some weighted sum of all or part of the activations
 $a_j^{i-1}$ for $j = 1 \dots m_{i-1}$ (where $m_{i-1}$ is the number of
-neurons in layer $i-1$) of the previous layer, $b_j^i$ is a bias term and
-$f(.)$ is an activation function which ensures non linearity.
+neurons in layer $i-1$) of the previous layer, $b_j^i$ is a \textit{bias term} and
+$f(.)$ is an \textit{activation function} which ensures non linearity.
 
 \subsubsection{Deep Convolutional Neural Networks}
 
 In particular, since our task focuses on images (i.e. 2/3-dimensional data), we
-will be using a particular type of deep learning models called deep
-convolutional neural networks (DCNNs). DCNNs consist of a succession of 
+will be using a particular type of deep learning models called Deep
+Convolutional Neural Networks (DCNNs). DCNNs consist of a succession of 
 convolutional and pooling layers followed by fully connected layers.
 
 \begin{figure}[ht]
@@ -207,33 +306,33 @@ $n$ is the image height and $m$ the image width, either in greyscale ($\in
 processes it to extract features which will constitute a meaningful
 representation of the image in a lower dimension, i.e. a vector.
 
-\paragraph{Convolutional Layers}
+\para{Convolutional Layers}
 
 Convolutional layers are the core components of DCNNs. They are were the most
 heavy computations take place and act as feature extractors by applying a set
 of spatially small learnable kernel filters to the input image. 
 These filters could  for instance have a
 size of 7x7x$D$ where the first and the second 7 correspond to the height and the
-width of the filter respectively and $D$ corresponds to the depth (either 1 or 3
-if we are working with RGB input images).
+width of the filter respectively and $D$ corresponds to the depth (e.g. 1 for
+greyscale or 3 if we are working with RGB input images).
 
 Each filter is applied by ``sliding'' it over the input image and performing a
 convolution at every pixel of the image between the filter and the portion of 
 the image that lies directly beneath it. Mathematically, this gives the
 following: suppose we have an input image $I \in \mathcal{R}^{WxH}$ and a
 filter $F \in \mathcal{R}^{kxk}$ such that $I(a,b)$ denotes the pixel on row
-a and column b of $I$ (assume the same notation for $F$). Then the convolution
-operation  $C(.,.)$ executed at pixel $(a,b)$ of the image is
+$a$ and column $b$ of $I$ (assume the same notation for $F$). Then the convolution
+operation  $C(\cdot,\cdot)$ executed at pixel $(a,b)$ of the image is
 
 \begin{equation}
   C(a,b) = \sum_{i=1}^{k}\sum_{j=1}^{k} F(i,j) \times I(a-i, b-j)
   \label{eq:convolution}
-\end{equation}small
+\end{equation}
 
 Therefore, as we slide a filter over the image, we produce a 2D response map
 that corresponds to the convolved features at each spatial location of the
 input image, see Fig.~\ref{fig:conv_op}. Intuitively, each kernel filter learns
-to detect specific features in the input such as as corner or a blob of colour
+to detect specific features in the input space such as as corner or a blob of colour
 
 In the case of a 3 dimensional input volume ($Width \times Height \times Depth$), each filter will also be 3
 dimensional with the depth dimension $D$ matching that of the input. Therefore each
@@ -241,11 +340,11 @@ filter will produce $D$ response maps which are summed together with a bias
 term to produce a 2 dimensional overall response map for that filter.
 
 Finally, when using a $k\times k$ kernel on an $n \times m$ image, the response map will have a smaller
-size of $(n-l)\times(m-l)$ where $l=\frac{k-1}{2}$ ($k$ is usually and odd
+size of $(n-l)\times(m-l)$ where $l=\frac{k-1}{2}$ ($k$ is and odd
 number). While we do want to perform dimensionality reduction before going
 through the fully connected layers, this means that the kernel might omit some
 important features that are at the edges of the image. To solve this problem,
-it is common practice to add $l$ layers of zero-padding on each side of the
+it is common practice to add $l$ layers of \textit{zero-padding} on each side of the
 image so that the kernel also covers the edges of the image and the response
 map has the same dimension as the input.
 
@@ -266,14 +365,14 @@ $s$ on an image with a padding of $p$:
   \centering
   \includegraphics[scale=0.5]{./figures/convolution_example.eps}
   \caption{Example of a convolution operation at a single spatial location. The
-  orange square represents the kernel filter. Note that no padding has been
+  large yellow square represents the kernel filter. Note that no padding has been
 applied here which is why the convolved feature (i.e. the response map) is
 smaller.}
   \source{http://deeplearning.stanford.edu/wiki/images/6/6c/Convolution\_schematic.gif}
   \label{fig:conv_op}
 \end{figure}
 
-\paragraph{Pooling Layers}  
+\para{Pooling Layers}  
 
 As mentioned in the above paragraph, convolutional layers can perform
 dimensionality reduction if no zero-padding is added to the input image.
@@ -309,33 +408,34 @@ To sum up here are the inputs and outputs of a pooling layer:
     square pooling filter and $s$ the stride size
 \end{enumerate}
 
-\paragraph{Fully Connected Layers}
+\para{Fully Connected Layers}
 
-Fully connected layers constitute the second block of the 
+Fully connected layers constitute the second block of DCNNs, after the block of
+convolutional + max pool layers.
 
 Unlike convolutional layers, which are locally connected (each pixel in the
 response map is locally connected to a sub-region of the input), fully
 connected layers have their outputs connected to \textit{every} input.
 
-As such, the activations can be simply calculated via matrix multiplication
+As such, the activations are simply calculated via matrix multiplication
 between the inputs and their associated weights and adding a bias term before
-passing all that to an activation function (e.g. ReLu, Sigmoid, Softmax).
+passing this sum to an activation function (see Section~\ref{sec:activation_functions}).
 
 It is worth noting that we can easily replace a fully connected layer by an
 equivalent convolutional layer; all that must be done is to match the size of
 the kernel filters to the size of the input image or vector. For instance, in
-the VGG 16[CITE] network, the final convolutional layer outputs 512 feature maps of
+the VGG 16 \cite{RefWorks:22} network, the final convolutional layer outputs 512 feature maps of
 size $7 \times 7$ which are passed on to a fully connected layer with 4096
 neurons. Then we can replace this fully connected layer by a convolutional one
 with 4096 filters of size $7 \times 7$
 
-\paragraph{Dropout Layers}
+\para{Dropout Layers}
 
-Dropout layers[CITE] are a simple yet powerful regularisation technique to prevent,
+Dropout layers \cite{RefWorks:23} are a simple yet powerful regularisation technique to prevent,
 overfitting. The key idea is to randomly block some neurons from connecting to
 the next layer during training see Fig.~\ref{fig:dropout}. This prevents groups of neurons from
-co-adapting too much and improves the flexibility of the network which
-decreases overfitting.
+\textit{co-adapting} too much and improves the flexibility of the network which
+\textit{decreases overfitting}.
 
 
 \begin{figure}[ht]
@@ -349,13 +449,13 @@ decreases overfitting.
 
 
 
-\subsubsection{Activation functions}
+\subsubsection{Activation functions}\label{sec:activation_functions}
 
 Each trainable layer in the network also has an activation function, through
 which it passes its outputs before sending them to the next layer.
 The main role of activation functions is to provide non-linearity to the network.
-Intuitively, this enables deep networks to better fulfill their representation
-learning power. Indeed, without these functions, deep networks (or any neural
+Intuitively, this enables deep networks to better fulfil their \textit{representation
+learning power}. Indeed, without these functions, deep networks (or any neural
 network) would only be learning a linear combination of the input data which is
 quite limiting. We now go through the main activation functions used in neural
 networks.
@@ -372,17 +472,18 @@ is defined as follows:
 \end{equation}
 
 It was a popular activation function until the arrival of the
-ReLU~(\ref{para:relu}) which dealt better for the main shortcoming of this one.
+ReLU~(\ref{para:relu}) which dealt better with the main shortcoming of this one.
 Indeed, the sigmoid function squashes everything between 0 and 1 therefore, as
 the absolute value of the input increases, the gradient at that point
 decreases. So the gradient tends towards 0 as the input tends towards infinity.
-This is called the vanishing gradient problem and is a problem as when
+This is called the \textit{vanishing gradient} problem and is indeed
+problematic as when
 performing backpropagation, the updates will not change the weights
-significantly which considerably slows training at best or prevents us to reach
+significantly which considerably slows down training at best or prevents us to reach
 a local minimum at worst.
 
 Today, the sigmoid activation function, just like softmax (see paragraph below)
-is used on the very last layer of the network, to make the outputs look like
+is mostly used on the very last layer of the network, to make the outputs look like
 probabilities.
 
 % ---------- S O F T M A X ----------
@@ -399,17 +500,17 @@ $\bm{z}^i$ be the vector of raw activations of this layer as defined in
 
 Where $m_i$ denotes the number of neurons in layer i.
 
-From a probability theory standpoint, the softmax activation function
+From a probability theory point of view, the softmax activation function
 calculates a probability distribution over what we can consider as $m_i$
 categories. It is therefore mostly used on the very last layer of neural
 networks trained to classify inputs into a single category. Therefore when
 using a softmax activation function on the last layer, one assumes that these
-categories are mutually exclusive, meaning that training or test instance can
+categories are \textit{mutually exclusive}, meaning that training or test instance can
 not belong to two or more categories at the same time.
 
 % ---------- R E L U ----------
 \para{ReLU}\label{para:relu}
-In its simplest form, the Rectified Linear Unit[CITE] for a scalar input $x$ is defined as
+In its simplest form, the Rectified Linear Unit \cite{RefWorks:24} for a scalar input $x$ is defined as
 follows:
 
 \begin{equation}
@@ -417,7 +518,7 @@ follows:
   \label{eq:relu}
 \end{equation}
 
-Variations have recently emerged such as the Leaky ReLU[CITE] which is defined
+Variations have recently emerged such as the Leaky ReLU \cite{RefWorks:25} which is defined
 as:
 
 \begin{equation}
@@ -430,7 +531,7 @@ as:
 \end{equation}
 
 There are two main advantages to using ReLUs which make them the most popular
-activation functions today. The first is that it significantly reduces the
+activation functions today. The first is that they significantly reduce the
 likelihood of the gradient to vanish (or be extremely small) since when
 $x >0$, the gradient has a constant value, unlike the sigmoid activation
 function described above whose gradient becomes increasingly small as
@@ -439,13 +540,15 @@ is that using ReLU gives more sparse representations of the data as any
 negative input is mapped to $0$. Sparse representations seem to be more
 efficient as they encode a \textit{de facto} feature selection (if an input is
 mapped to 0 then that ``feature'' is ignored) and therefore
-have more potential to uncover true relationships in the data.
+have more potential to uncover true relationships in the data and be less
+affected by noisy dependencies.
 
 \subsubsection{Loss functions}\label{sec:loss}
 
 Loss functions are at the core of deep neural networks as they define the
-objective where are trying to achieve. It is therefore crucial to select the
-the appropriate loss function depending on the task performed by the network.
+objective that we are trying to achieve. It is therefore crucial to select
+the appropriate loss function depending on the task for which the network will
+be trained.
 
 \para{Mean Squared Error}\label{para:mse}
 
@@ -458,16 +561,16 @@ examples, it is defined as:
   \label{eq:mse}
 \end{equation}
 
-Where $\hat{y}$ is the network's prediction using input $\bm{x}_i$.
+Where $\hat{y}_i$ is the network's prediction using input $\bm{x}_i$.
 
 \para{Cross Entropy}\label{para:cross_entropy}
 
-The cross entropy loss function is generally used in classification tasks, when
+The cross entropy loss function is generally used in classification tasks when
 the network outputs a probability distribution over the classes in which an
 example can be categorised, either by using the softmax (\ref{para:softmax}) or the
 sigmoid (\ref{para:sigmoid}) activation function.
 
-Suppose the network outputs a probability distribution $\hat{\bm{y}}^ii$ for
+Suppose the network outputs a probability distribution $\hat{\bm{y}}^i$ for
 $m$ categories and the target
 probability distribution is $\bm{y}^ii$ for $i=1\dots N$ examples. 
 Then the cross entropy loss for a single example is defined as:
@@ -488,7 +591,7 @@ Now that we have overviewed the different elements that make up the structure
 of a network, we must look at how to update the trainable parameters (i.e. the
 weights). The key value that we use to update a parameter is the gradient of the loss function
 (\ref{sec:loss}) with respect to that parameter to perform gradient descent.
-This gradient,  $\Delta\bm{w}$, is computed using the backpropagation[CITE] algorithm and
+This gradient,  $\Delta\bm{w}$, is computed using the backpropagation algorithm and
 the most simple way to apply it to update the parameters $\bm{w}$ is as follows:
 
 \begin{equation}
@@ -551,7 +654,7 @@ ensures that this slow-down does not occur or is minimised.
 \para{Adagrad}\label{para:adagrad}
 
 The next set of parameter updating techniques possess the particularity of
-having a per-parameter adaptive learning rate. Adapting the learning rate can
+having a \textit{per-parameter adaptive learning rate}. Adapting the learning rate can
 be viewed as refining the search for a local minimum. Indeed, we first start
 with a relatively large learning rate as we want to explore the gradient space
 with big steps. Once a region seems promising, we would like to focus on it and
@@ -559,9 +662,9 @@ reduce size of the steps as we do not want to miss a local minimum. This can be
 done by reducing the learning rate $\alpha$ when we are close to a local
 maximum. While we can adapt the learning rate globally for all parameters,
 recent research has focused on methods that adapt the learning rate per-parameter.
-\textbf{Adagrad}, first proposed by Duchi et al.[CITE], is one of these
+\textbf{Adagrad}, first proposed by Duchi et al. \cite{RefWorks:26}, is one of these
 methods and is defined as follows: suppose we have just calculated a gradient
-$\delta\bm{w}$ for a mini batch, then the update is applied as follows:
+$\Delta\bm{w}$ for a mini batch, then the update is applied as follows:
 
 \begin{align}
   \bm{c} &\leftarrow \bm{c} + \left( \Delta\bm{w} \right)^2
@@ -598,9 +701,9 @@ parameter $\gamma$ when updating the cache $\bm{c}$. The rest is identical to
 
 The reader is referred to \cite{RefWorks:2} (paragraph 3) for a review of existing deep learning methodologies for facial expression recognition "in-the-wild".
 
-In terms of deep learning models, we use two pre-existing and pre-trained models, namely \textbf{VGG} \cite{RefWorks:21} and
-\textbf{Inception V2} [CITE]. These were fine-tuned for specific tasks on our
-database (a subset of the EmotioNet database[CITE])
+In terms of deep learning models, we use two pre-existing and pre-trained models, namely \textbf{VGG} \cite{RefWorks:22} and
+\textbf{Inception V2} \cite{RefWorks:28}. These were fine-tuned for specific tasks on our
+database (a subset of the EmotioNet database \cite{RefWorks:1})
 
 \para{VGG 16}\label{para:vgg16}
 
@@ -631,7 +734,7 @@ by 2
 \para{Inception V2}\label{para:inception_v2}
 
 Inception networks build upon a key insight from the Network in Network
-(NiN) paper[CITE, Lin et al 2014]: convolutional layers can only learn linear
+(NiN) paper \cite{RefWorks:30}, Lin et al 2014]: convolutional layers can only learn linear
 combination of the inputs, to enable them to learn non linear
 features, Lin et al replaced their linear kernel filters with multilayer
 perceptrons. 
@@ -663,7 +766,7 @@ effectively allowing the network to be even deeper.
 
 With the second version of the Inception network, which we will be using, the
 inception module depicted in Fig.~\ref{fig:inception_module} differs slightly.
-Indeed, the authors factorise the $5 \times 5$ convolutional layer into two
+Indeed, the authors factorised the $5 \times 5$ convolutional layer into two
 consecutive $3 \times 3$ convolutional layers as shown in
 Fig.~\ref{fig:inception_v2_module}.
 
@@ -678,7 +781,7 @@ Fig.~\ref{fig:inception_v2_module}.
 \end{figure}
 
 
-\subsubsection{Evaluation Measures}
+\subsubsection{Evaluation Measures}\label{sec:measures}
 
 Once a model has been trained, we would like to evaluate its performance on an
 independent and unseen test set. To do this various measures exist to provide
@@ -713,20 +816,84 @@ measures.
 
 \para{Accuracy}\label{para:accuracy}
 
+Accuracy is the simplest and most intuitive measure, it measures the proportion
+of examples that were correctly classified as positive or negative and is
+defined as:
+
+\begin{equation}
+  Acc = \frac{TP + TN}{TP + TN + FP + FN}
+  \label{eq:accuracy}
+\end{equation}
+
 \para{Partial Accuracy}\label{para:partial_accuracy}
+
+Suppose the label $\bm{y}$ is as in the EmotioNet data set, i.e. an array composed of 60
+entries, each corresponding to the AU of its index, which are either 1 if the
+AU is active or 0 otherwise. Now suppose we also have a prediction
+$\hat{bm{y}}$ of same size and also composed of zeros and ones. With normal
+accuracy (\ref{para:accuracy}), if as little as one $\hat{\bm{y}}_i$ differs
+from $\\bm{y}_i$, for $i=1 \dots 60$, then the prediction is assumed to be
+incorrect as a whole, as it does not match the label exactly, entry for entry.
+This is not desirable when the classes are not mutually exclusive as the other
+entries (e.g. the other AUs) are correctly classified. We are therefore
+interested in the proportion $P_i$ of classes (e.g. AUs) that are correctly
+predicted within a single label $\hat{\bm{y}}^i$:
+
+\begin{equation}
+  P_i = \frac{1}{m}\sum_{k=1}^m I(\hat{\bm{y}}^i_k, \bm{y}_{k^i})
+  \label{eq:partial_accuracy}
+\end{equation}
+
+Where $m$ is the number of classes and $I(a, b) = 1$ iff $a = b$ and 0
+otherwise. We then take the average of the $P_i$ over $i=1\dots N$ to output the average
+partial accuracy of the model over a test set of $N$ examples.
+
 
 \para{Recall}\label{para:recall}
 
+Recall measures the proportion of \textit{actually} positive examples that where
+\textit{predicted} as being positive and is defined as:
+
+\begin{equation}
+  Recall = \frac{TP}{TP + FN}
+  \label{eq:recall}
+\end{equation}
+
+Note that one can achieve a Recall of 1 (the highest value possible) by
+predicting every example as positive.
+
 \para{Precision}\label{para:precision}
+
+Precision measures the proportion of examples that \textit{actually} are positive
+within the set of examples that were \textit{predicted} to be positive. It is
+defined as:
+
+\begin{equation}
+  Precision = \frac{TP}{TP + FP}
+  \label{eq:precision}
+\end{equation}
 
 \para{F1 Measure}\label{para:f1_measure}
 
+The F1 measure is the harmonic mean of the recall \eqref{eq:recall} and the
+precision \eqref{eq:precision} and is defined as:
+
+\begin{equation}
+  F1 = 2\times \frac{1}{\frac{1}{recall}+\frac{1}{precision}} = 2 \times
+  \frac{precision \times recall}{precision + recall} 
+  \label{eq:F1}
+\end{equation}
+
+Intuitively, it measures the balance between precision and recall, with an F1
+score of 1 signifying perfect balance (i.e. both precision and recall are 1).
+
+\clearpage
 \section{EmotioNet Database}
  
 \subsection{Downloading}
 
 In order to use less space, the authors of the EmotioNet database do not offer
-a direct download of the  around 25k images. Instead, they provide an xlsx file containing one line per image which consists of 61 columns: the first column corresponds to the URL of the image and the next 60 columns correspond to the 60 AUs in ascending order. To download the database, one must therefore read this file line by line, get the image at the specified URL and store it in a file. 
+a direct download of the 25k images. Instead, they provide an xlsx file containing one line per image which consists of 61 columns: the first column corresponds to the URL of the image and the next 60 columns correspond to the 60 AUs in ascending order. To download the database, one must therefore read this file line by line, get the image at the specified URL and store it in a file. 
 
 \subsubsection{Reading the xlsx file}
 
@@ -761,15 +928,15 @@ We therefore abandoned this method and just used the URL with a couple of prepro
 
 TFRecords is the standard recommended file format to store data that will be used by a TensorFlow network or Graph. It is based on Google's Protocol Buffers which are language and platform agnostic object serialisation mechanisms. 
 
-Converting a data set to a set of TFRecord files is no easy task, but thankfully TensorFlow provides a script, \texttt{build\_image\_data.py}, that does just that and only needed a few modifications to adapt it to the nature of our data set. Indeed, this script provided by TensorFlow was used to convert the images of the CIFAR-10[CITE] database and relied on a special organisation of the data to assign labels: one eponymous subdirectory should be created for each image category (label) and all the images of that category should be placed into that subdirectory (e.g. and image of a cat would be in the /dataset/cat/ subdirectory). However this mechanism does not apply in our case since it assumes that the categories are mutually exclusive (one image cannot be categorised as a cat and a dog at the same time) to partition the data set into subdirectories, whereas in our case, an image can have multiple active AUs at once.
+Converting a data set to a set of TFRecord files is no easy task, but thankfully TensorFlow provides a script, \texttt{build\_image\_data.py}, that does just that and only needed a few modifications to adapt it to the nature of our data set. Indeed, this script provided by TensorFlow was used to convert the images of the CIFAR-10 database and relied on a special organisation of the data to assign labels: one eponymous subdirectory should be created for each image category (label) and all the images of that category should be placed into that subdirectory (e.g. and image of a cat would be in the /dataset/cat/ subdirectory). However this mechanism does not apply in our case since it assumes that the categories are mutually exclusive (one image cannot be categorised as a cat and a dog at the same time) to partition the data set into subdirectories, whereas in our case, an image can have multiple active AUs at once.
 
-So we had to change the way the script assigned labels to images by constructing a dictionary of URLs to labels using the xlsx data file and then using the file name of the image to look up its label in this dictionary. We also had to change the way the label was stored in the TFRecord as it now consist of an array of \texttt{int64} rather than a single \texttt{int64}. Finally, the script converts andy PNG image to JPEG for consistency, however, it does not handle other image types such as GIF so we added the necessary logic to convert GIFs to JPEG images.
+So we had to change the way the script assigned labels to images by constructing a dictionary of URLs to labels using the xlsx data file and then using the file name of the image to look up its label in this dictionary. We also had to change the way the label was stored in the TFRecord as it now consist of an array of \texttt{int64} rather than a single \texttt{int64}. Finally, the script converts any PNG image to JPEG for consistency, however, it does not handle other image types such as GIF so we added the necessary logic to convert GIFs to JPEG images.
 
 The script then takes care of multi-threading for efficiency and outputs a training and a validation TFRecord file, both split into a number of user-specified shards.
 
 \subsection{Extending TF-Slim datasets}
 
-Having downloaded the datbase and converted it to TFRecord format, we now
+Having downloaded the database and converted it to TFRecord format, we now
 extend the TF-Slim datasets to incorporate ours. This has many advantages as
 TF-Slim then takes care of creating a data provider for our models and more
 importantly, it allows us to easily reuse TF-Slim's generic training and
@@ -777,7 +944,7 @@ evaluation scripts.
 
 In order to do this, we created a new file in \texttt{/slim/datasets/} called \texttt{images.py} 
 which returns an instance of a TF-Slim Dataset class, customised for our dataset. 
-We then add this instance to the \texttt{dataset\_factory} file's dictionnary.
+We then add this instance to the \texttt{dataset\_factory} file's dictionary.
 Our dataset can now be accessed using the
 \texttt{dataset\_factory.get\_dataset()} method which only requires the name of
 the dataset, the path to the actual data and the name of the split to use (one
@@ -787,14 +954,14 @@ more modular.
 
 \subsection{Annotating Valence and Arousal}
 
-As mentioned in section [CITE], this database was annotated by human annoators
-on Action Unit presence/absence only. However, we are also intereseted in
-valence and arousal values as it is believed that the presence or absence of
+As mentioned in section (\ref{sec:databases}), this database was annotated by human annotators
+on Action Unit presence/absence only. However, we are also interested in
+valence and arousal values as it is strongly believed that the presence or absence of
 AUs is correlated to the valence and arousal of the emotion that can be
 interpreted from a facial expression.
 
-As such, one of the major tasks, was to first annotate the 21,500 images that
-were downloaded with both valence and arousal. This was done using a tool
+As such, one of the major tasks, is to first annotate the 21,500 images that
+were downloaded with both valence and arousal. This is1 done using a tool
 available for research purpose only and developed by J. Kossaifi, 
 G. Tzimiropoulos, S. Todorovic and M. Pantic. This tool was designed to
 annotate videos, not large image data sets, so we first divided the 21,500
@@ -803,6 +970,7 @@ load up a video and start annotating the frames for valence. Once all the
 frames of the video are annotated with valence, we annotate them with arousal
 and move on to the next video.
 
+\clearpage
 \section{Action Unit Prediction}
 
 The first deep learning task consisted in fine-tuning a model for AU
@@ -901,29 +1069,476 @@ finally a weight decay of $0.00004$ for the L2 regularisation term.
 We carried out the fine-tuning for $5,000$ steps which amounts to about
 $11$ epochs.
 
-\subsubsection{Evaluation}
+\subsubsection{Evaluation}\label{sec:eval_60_au}<++>
 
 Evaluation was carried out on a separate and independent data set split of 6400
-images.
+images. For each model, we report the total accuracy, the partial accuracy, the recall,
+the precision,  the F1 measure and the AUC (see section \ref{sec:measures}) as
+shown in Table~\ref{tab:eval_au_60}.
 
-For each model, we report the total accuracy, the partial accuracy, the recall,
-the precision, and the F1 measure.
+\begin{table}
+  \centering
+  \begin{tabular}{|l|l|l|}
+    \hline
+    \backslashbox{Measure}{Model} & VGG 16     & Inception V2 \\
+    \hline
+    Total Accuracy                & 0.97710675 & 0.97671616\\
+    Partial Accuracy              & 0.97710687 & 0.97671622\\ 
+    Recall                        & 0          & 0.12441715\\
+    Precision                     & 0          & 0.46832192\\
+    F1 Score                      & 0          & 0.19660347\\
+    AUC                           & 0.5        & 0.56055355\\
+    \hline
+  \end{tabular}
+  \caption{Evaluation measures for AU prediction/classification on the full set
+  of AUs (AUs 1 to 60)}
+  \label{tab:eval_au_60}
+\end{table}
+
+The first figure that strikes us when looking at the results listed in
+Table~\ref{tab:eval_au_60} is the abnormally high total and partial accuracy
+for both networks, as well as how close these accuracies are. Such high
+results, coupled with low recall and precision should alarm us and after a
+quick analysis of the labels provided with this data set, one can understand
+why we obtain such high figures. 
+
+Indeed, out of the 60 action units available, only 11 of them (AUs 1,2, 4, 5,
+6, 9, 12, 17, 20, 25 and 26) were truly annotated. These AUs correspond exactly
+to those that were annotated in the DISFA \cite{RefWorks:17} database with the only
+difference being that this database was annotated for an additional AU, namely
+AU 15. The remaining 49 AUs were marked as '999' (as being occluded) for almost
+every image of the test and training set. Furthermore, since we ``clean'' the
+labels as described in (\ref{sec:cleaning}), these action units are marked as
+inactive just before training. The model therefore just has to predict a value
+of 0 for these AUs, which it can do very accurately since these AUs are almost
+always 0 after cleaning.
+
+This lack of variance in the labels can explain the high accuracy displayed by
+both VGG 16 and Inception V2 as both networks do not have to learn much.
+Moreover, since most of the entries (49 out of 60) of each label will be 0
+(after cleaning), there is a heavy bias towards that value which means that the
+models are more likely to predict a 0 instead of a 1. As such, the low recall
+and precision (and thus the low F1 score) result from the fact that 0s are
+considered as negatives and 1s as positives. Indeed, this suggests that there
+are many true negatives/false negatives, since many 0s/1s are
+correctly/incorrectly predicted as 0s and also that
+there are very few true positives/false positives as almost no AUs are predicted to be 1
+(active). This is confirmed by Table~\ref{tab:tf_pos_neg_60_au}.
+
+We do note that the Inception V2 model copes better than the VGG 16 model  with this lack of variance
+and imbalance of ``classes'' within the labels as it has around 1,000 true
+positives. However, this figure is insignificant when compared to the number of
+true negatives which we have artificially created by cleaning the labels.
+
+\begin{table}
+  \centering
+  \begin{tabular}{|l|l|l|}
+    \hline
+    \backslashbox{Measure}{Model} & VGG 16 & Inception V2 \\
+    \hline
+    \hline
+    True Positives                & 0       & 1,094\\
+    \hline
+    False Positives               & 0       & 1,240 \\
+    \hline
+    True Negatives                & 375,209 & 373,967 \\
+    \hline
+    False Negatives               & 8,791   & 7,699 \\
+    \hline
+  \end{tabular}
+  \caption{Reporting the number of True/False Positives/Negatives for VGG 16
+  and Inception V2 trained to predict action units for the full set of action
+units}
+  \label{tab:tf_pos_neg_60_au}
+\end{table}
+
+\subsubsection{Conclusion}
+
+From this initial approach to fine-tuning a deep learning model to predict if
+an action unit is active or not on the full set of 60 action units, we conclude
+that we cannot use this full set of AUs. Indeed, too many of them are marked as
+being occluded which created a significant class imbalance and invariance once
+we have ``cleaned'' the labels. As such, it would be better to restrict the
+number of AUs we would like to predict so as to limit the number of AUs marked
+as occluded.
+
+\subsection{Predicting 11 Action Units}
+
+Following the previous conclusion, we limit ourselves to the following 11
+action units:
+
+\begin{enumerate}
+  \item AU 1: Inner Brow Raiser
+  \item AU 2: Outer Brow Raiser 
+  \item AU 4: Brow Lowerer
+  \item AU 5: Upper Lid Raiser
+  \item AU 6: Cheek Raiser
+  \item AU 9: Lid Tightener 
+  \item AU 12: Lip Corner Puller
+  \item AU 17: Chin Raiser
+  \item AU 20: Lip Stretcher
+  \item AU 25: Lips Part
+  \item AU 26: Jaw Drop
+\end{enumerate}
+
+Coincidently, these 11 AUs correspond to those that have been annotated in the
+DISFA database (minus AU 15). They were chosen for the sparsity of 999/occluded
+entries in their labels. Indeed, having eliminated all the other action units,
+we then eliminate any image that has one of the AUs listed above marked as 999.
+After carrying out this cleansing, we are left with a new dataset, which we
+will call EmotioNet-11AU, composed of 10,282 training and 4,424 test images.
+
+\subsubsection{Fine-tuning}
+
+We can now conduct a proper fine-tuning of the VGG 16 and Inception V2 models.
+As in the previous section, we use the RMSprop (\ref{para:rmsprop}) optimiser
+with a decay rate of $\gamma=0.9$ and a momentum of 0.9. The learning rate also
+has the same exponential decay with a decay factor of $0.94$ and the same
+interval of $2$ epochs between 2 successive decays. Finally, the weight decay
+for the L2 regularisation term is the same at 0.00004.
+
+However, perform multiple trainings whilst first varying the batch size and
+then the initial learning rate so as to select the best hyper-parameter.
+
+\para{Batch Size Selection}\label{para:batch_size_au11}
+
+We first wish to select an appropriate batch size so that the training
+has good convergence. To do so, we train the Inception V2 model for 20,000
+steps, using the following batch sizes: 32, 64, 128, 256 and record the
+evolution of the training loss as we progress through the number of steps. 
+
+The results are presented in Fig.~\ref{fig:batch_size_11au} and show that using
+a small batch size is not efficient as the training loss actually increases
+during the first 2,500 steps before declining in a linear fashion. As we
+increase the size if the batch size, the training loss decreases more for a
+given number of steps. This trend culminates with the maximum batch size we
+have tested, 256, as the training loss decreases exponentially up to step 4,000
+where it hits a plateau of about 0.275 which batch size 128 reaches at step
+8,000 and batch size 64 at step 16,000. We do note however that, since 256 is
+twice as much as 128 and 4 times 64, and the corresponding number of steps
+follow this proportion, using a batch size of 64, 128 or 256 will require a
+similar number of epochs to reach the plateau training. 
+This is not true for a batch size of 32. 
+
+We therefore chose a batch size of 128 as a compromise between the number of
+steps required to converge and the time (in seconds) each of these steps take.
+
+Concerning the VGG 16 model, we used a batch size of 32 as anything above that
+caused our server to run out of GPU memory due to the large number of parameter
+that this model has.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[scale=0.2]{figures/batch_size_11au.png}
+  \caption{Training loss for different batch sizes: 32=orange, 64=cyan,
+  128=magenta, 256=green}
+  \label{fig:batch_size_11au}
+\end{figure}
 
 
+\para{Initial Learning Rate Selection}
+
+Having picked a batch size of 128, we now focus on selecting an effective
+initial learning rate. To do this we train 3 Inception V2 models with initial
+learning rates of 0.1, 0.01 and 0.001 respectively for 3,500 steps.
+Fig.~\ref{fig:learning_rate_au11_inception} shows the training loss against the
+number of steps for these three learning rates. Clearly using an initial
+learning rate of 0.1 leads to an unwanted increase of the training loss as we
+progress though the steps and so should be avoided. Using an initial learning
+rate of 0.1 or 0.001 leads to the similar type of linear decrease of the training loss,
+with the learning rate 0.001 boasting the best results. We therefore select
+$\alpha=0.001$ as our initial learning rate for the Inception V2 model.
+
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[scale=0.2]{figures/learning_rate_au11_inception.png}
+  \caption{Training loss using Inception V2 model with the following different
+    initial learning rates: 0.1=purple, 0.01=cyan,
+  0.001=orange}
+  \label{fig:learning_rate_au11_inception}
+\end{figure}
+
+
+For the VGG 16 model, having selected a batch size of 32, we now perform the
+same experiment as above by training three VGG 16 model with 0.1, 0.01, 0.001 as
+initial learning rates respectively. The training loss of these three models is
+plotted in Figures \ref{fig:learning_rate_01_11au_vgg16},
+\ref{fig:learning_rate_001_11au_vgg16} and
+\ref{fig:learning_rate_0001_11au_vgg16} respectively. From these, we clearly
+see that the smallest initial learning rate, $\alpha = 0.001$ should be picked
+as the other two result either bad convergence for $\alpha=0.01$ or extremely
+high training loss for $\alpha=0.1$. Therefore, as with the Inception V2 model,
+we select $\alpha=0.001$ as our initial learning rate.
+
+\begin{figure}[ht]
+  \begin{subfigure}[b]{1\textwidth}
+    \centering
+    \includegraphics[width=1\linewidth]{figures/learning_rate_01_11au_vgg16.png}
+    \caption{$\alpha=0.1$}
+    \label{fig:learning_rate_01_11au_vgg16}
+  \end{subfigure}
+  
+  \begin{subfigure}[b]{1\textwidth}
+    \centering
+    \includegraphics[width=1\linewidth]{figures/learning_rate_001_11au_vgg16.png}
+    \caption{$\alpha=0.01$}
+    \label{fig:learning_rate_001_11au_vgg16}
+  \end{subfigure}
+  
+  \begin{subfigure}[b]{1\textwidth}
+    \centering
+    \includegraphics[width=1\linewidth]{figures/learning_rate_0001_11au_vgg16.png}
+    \caption{$\alpha = 0.001$}
+    \label{fig:learning_rate_0001_11au_vgg16}
+  \end{subfigure}
+
+  \caption{Training loss against number of steps for the VGG model for varying
+  initial learning rate $\alpha$}
+\end{figure}
+
+\subsubsection{Evaluation}\label{sec:eval_11_au}
+
+Now that we have selected some hyper parameters based on empirical results, we
+proceed to evaluating the Inception V2 and VGG 16 models with these parameters.
+Again, as with section (\ref{sec:eval_60_au}), we report the total accuracy,
+the partial accuracy, the recall, the precision, the F1 score and the AUC in
+Table~\ref{tab:eval_au_11}. Clearly the results are much more realistic than in
+section (\ref{sec:eval_60_au}). We also report the number of true/false
+negatives and positives in Table~\ref{tab:tf_pos_neg_11_au}, from which we note
+that even though there still is an imbalance between the number of 0s and the
+number of 1s in the labels, the models are not as biased towards predicting
+every action unit as '0' as they were in (\ref{sec:eval_60_au}). This can
+mostly be explained by the increased variance of the labels in this subset of
+the original dataset
+
+We note that the Inception V2 model performs better than the VGG 16 model on
+every measure. In particular, it has a total accuracy that is $2.51$ percentage
+points higher than that of VGG 16.
+
+\begin{table}
+  \centering
+  \begin{tabular}{|l|l|l|}
+    \hline
+    \backslashbox{Measure}{Model} & VGG 16     & Inception V2 \\
+    \hline
+    \hline
+    Total Accuracy                & 0.863939   & 0.889071\\
+    \hline
+    Partial Accuracy              & 0.863939   & 0.889071\\ 
+    \hline
+    Recall                        & 0.337218   & 0.434231\\
+    \hline
+    Precision                     & 0.514444   & 0.649738\\
+    \hline
+    F1 Score                      & 0.407391   & 0.520562\\
+    \hline
+    AUC                           & 0.642984   & 0.698270\\
+    \hline
+  \end{tabular}
+  \caption{Evaluation measures for AU prediction/classification on the
+  restricted set 11 AUs}
+  \label{tab:eval_au_11}
+\end{table}
+
+\begin{table}
+  \centering
+  \begin{tabular}{|l|l|l|}
+    \hline
+    \backslashbox{Measure}{Model} & VGG 16  & Inception V2 \\
+    \hline
+    \hline
+    True Positives                & 2,315   & 2,981\\
+    \hline
+    False Positives               & 2,185   & 1,607 \\
+    \hline
+    True Negatives                & 40,450  & 41,028 \\
+    \hline
+    False Negatives               & 4,550   & 3,884 \\
+    \hline
+  \end{tabular}
+  \caption{Reporting the number of True/False Positives/Negatives for VGG 16
+  and Inception V2 trained to predict the restricted set of 11 action units}
+  \label{tab:tf_pos_neg_11_au}
+\end{table}
+
+
+\subsubsection{Conclusion}
+
+In conclusion, restricting the current task at hand to the prediction of a
+subset of 11 out of the 60 original action units produces more realistic models
+as we no longer have the problem of occluded action units. 
+
+This was shown by training an Inception V2 with a batch size of 128 and an
+initial learning rate of $\alpha=0.001$ and a VGG 16 model with a batch size of
+32 and the same initial learning rate on this reduced data set, where both the
+batch size and the initial learning rate were selected based on empirical
+results to ensure better convergence during training.
+
+The evaluation of these two models showed realistic recall and precision
+measures as well as good accuracy, particularly for the Inception V2 model,
+which outperformed VGG 16 in every measure, which boasted a best total accuracy
+of $88.91\%$.
+
+\clearpage
 \section{Valence and Arousal Regression}
 
-\subsection{VGG 16}
+We know switch to a new task in which the goal is to predict the valence and
+arousal of a facial expression. Since these two emotion dimensions are
+continuous, this is a regression task.
 
-\subsection{ResNet}
+This task is of great interest as it is for this subset of the EmotioNet
+database. Indeed, the EmotioNet database is annotated for action unit
+activation or not but it is not annotated for valence and arousal.
 
+Time constraints and other problems have led us to annotate 1,000 images from
+the EmotioNet database with both valence and arousal at the time of writing
+this report. We therefore use this small data set, divided in 800 training
+examples and 200 test examples, to train and evaluate an Inception V2 and a VGG
+16 model.
+
+\subsection{Inception V2}\label{sec:valar_inception_v2}
+
+We first train and evaluate Inception V2 to predict valence and arousal. To do
+this, we change the last layer of the network so that it only outputs two
+values, the first one for valence and the second for arousal. We then reuse
+the previous training and evaluation scripts with some slight modifications to
+adapt them from a classification task to a regression one, such as removing the
+final sigmoid activation function and changing the loss function from cross
+entropy (\ref{para:cross_entropy}) to the mean squared error.
+
+\subsubsection{Fine-tuning}\label{sec:valar_fine}
+
+As with the previous tasks, we fine-tune this model on the 800 images of the
+training set, still using the RMSProp (\ref{para:rmsprop}) optimiser with a
+decay rate of $\gamma = 0.9$ and a momentum of 0.9. We also keep the same
+exponential decay rate of $0.94$ and interval of 2 epochs between decay updates
+for the learning rate.
+
+\para{Batch Size Selection}
+
+Similarly to Section (\ref{para:batch_size_au11}), we look for the batch size
+that leads to good convergence of the training loss with respect to the number
+of steps. To do this, we perform training with varying batch sizes and record
+the training loss against the number of steps as shown in
+Fig.~\ref{fig:batch_size_valar_inception}. Interestingly, only with a small
+batch size of 32 do we have a monotonically decreasing training loss as we
+progress through the number of steps. This may be due to the high number of
+epochs. Indeed, since the training data set only has 800 images, training for
+4,000 steps with a batch size of 128 is equivalent to training for 640 epochs.
+Finally, we note that the lowest training loss is achieved with a batch size of
+128 and around 1,500 steps so we fix these parameters to these values.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1\textwidth]{figures/batch_size_valar_inception.png}
+  \caption{Training loss against number of steps for different batch sizes:
+  32=orange, 64=cyan, 128=magenta, 256=blue}
+  \label{fig:batch_size_valar_inception}
+\end{figure}
+
+
+\subsubsection{Evaluation}
+
+To evaluate our model, we use the independent test set of 200 images and we
+report the mean squared error and the root mean squared error. For the
+Inception V2 network defined above, with the selected batch size of 128 and
+1,500 steps, we get the following measures:
+
+\begin{align}
+  MSE &= 15.655972 \\
+  RMSE &= 3.9567628
+\end{align}
+
+However, these are not the best results that we have found. Indeed, it turns
+out that using the VGG 16 model with a batch size of 32 and an initial learning
+rate of 0.01 (keeping all other hyper-parameters the same as in section
+\ref{sec:valar_fine}), we find the following measures:
+
+\begin{align}
+  MSE &= 13.749833 \\
+  RMSE &= 3.7080767
+\end{align}
+
+
+\clearpage
 \section{Future Work}
 
 
+\subsection{Valence and Arousal Regression}
+
+\subsubsection{Larger Dataset}
+
+The small size of the data set (1,000 images) used to train the networks in
+sections (\ref{sec:valar_inception_v2}) does not
+allow for an effective training of deep learning models as these thrive on
+large data sets. 
+
+As such, one way to cheaply increase the number of images would be to perform
+some data augmentation. The following operations could be applied to each image
+in order to multiply the size of the data set by at least a factor of 4:
+
+\begin{enumerate}
+  \item flip image upside down or left to right
+  \item rotate with a uniform random angle between 0 and 360 degrees
+  \item random crop
+  \item colour perturbation
+\end{enumerate}
 
 
+However, this does not replace the fact that the remaining images in the
+data set should also be annotated manually for valence and arousal. Since we
+are at the beginning of using machine learning to predict valence and arousal,
+this first manual annotation is necessary if we wish to train a model that
+could then replace/accelerate human annotators.
 
+\subsubsection{More Models and Full Training}
 
+It would be worth trying out more models on this data set, especially the
+newer versions of the Inception model (versions 3 and 4). Furthermore, building
+a custom model could be worthwhile, although one would probably have to
+pre-train it on other available data sets for better results which could be
+time consuming and computationally expensive. 
 
+Furthermore, we do not train the Inception V2 or VGG 16 models from scratch in
+this project and it would be interesting to see if performing training from
+scratch is more beneficial in terms of model performance. Instead of training
+from scratch, one could also fine-tune the whole model, not just the fully
+connected layers. That is, we start with pre-existing weights which are all set
+to be trainable in order to fine-tune them by using a small initial learning
+rate, say $\alpha=0.001$.
+
+\subsection{Video Analysis}
+
+So far, we have only considered images. However, being able to continuously
+predict valence and arousal on video data would be extremely useful. Training a
+Deep Convolutional Neural Network on temporal sequences is an area of intense
+research as being able to interpret emotions from videos has multiple
+applications, including Human Computer Interaction.
+
+\subsubsection{Recurrent Neural Networks}
+
+One type model that could be used for video analysis is a Deep Convolutional
+Network with a recurrent neural net instead of fully connected layers after the
+convolutional layers. One type of recurrent network in particular is the Long
+Short Term Memory, or LSTM, network which is accepted as the best recurrent
+network for classification/regression of time series (Google uses LSTMs in
+their speech recognition software).
+
+\subsubsection{3D Convolutional Network}
+
+Another type of model that could be used for video analysis is a 3D
+convolutional neural network \cite{RefWorks:6} in which convolutions are extended to the
+temporal dimension as well (see Fig.~\ref{fig:3d_conv})
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[scale=0.25]{figures/3d_conv.png}
+  \caption{Example of a 3D convolution, note that connections with the same
+  colours share the same weights}
+  \source{\cite{RefWorks:6}}
+  \label{fig:3d_conv}
+\end{figure}
 
 % REFERENCES
 \clearpage

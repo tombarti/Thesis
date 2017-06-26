@@ -1,4 +1,4 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
 \bibitem{RefWorks:1}
 C.~Fabian Benitez-Quiroz, Ramprakash Srinivasan, and Aleix~M. Martinez.
@@ -6,6 +6,12 @@ C.~Fabian Benitez-Quiroz, Ramprakash Srinivasan, and Aleix~M. Martinez.
   annotation of a million facial expressions in the wild.
 \newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
   Pattern Recognition}, pages 5562--5570, 2016.
+
+\bibitem{RefWorks:26}
+John Duchi, Elad Hazan, and Yoram Singer.
+\newblock Adaptive subgradient methods for online learning and stochastic
+  optimization.
+\newblock {\em Journal of Machine Learning Research}, 12(Jul):2121--2159, 2011.
 
 \bibitem{RefWorks:12}
 Paul Ekman and Wallace~V. Friesen.
@@ -18,10 +24,33 @@ Paul Ekman, Wallace~V. Friesen, and Joseph~C. Hager.
 \newblock {\em A technique for the measurement of facial action.Consulting,
   Palo Alto}, 22, 1978.
 
-\bibitem{RefWorks:11}
-B.~Fasel and Juergen Luettin.
-\newblock Automatic facial expression analysis: a survey.
-\newblock {\em Pattern Recognition}, 36(1):259--275, 1 2003.
+\bibitem{RefWorks:28}
+Sergey Ioffe and Christian Szegedy.
+\newblock Batch normalization: Accelerating deep network training by reducing
+  internal covariate shift.
+\newblock {\em arXiv preprint arXiv:1502.03167}, 2015.
+
+\bibitem{RefWorks:6}
+Shuiwang Ji, Wei Xu, Ming Yang, and Kai Yu.
+\newblock 3d convolutional neural networks for human action recognition.
+\newblock {\em IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  35(1):221--231, 2013.
+
+\bibitem{RefWorks:30}
+Min Lin, Qiang Chen, and Shuicheng Yan.
+\newblock Network in network.
+\newblock {\em arXiv preprint arXiv:1312.4400}, 2013.
+
+\bibitem{RefWorks:25}
+Andrew~L. Maas, Awni~Y. Hannun, and Andrew~Y. Ng.
+\newblock Rectifier nonlinearities improve neural network acoustic models.
+\newblock In {\em Proc. ICML}, volume~30, 2013.
+
+\bibitem{RefWorks:17}
+S.~Mohammad Mavadati, Mohammad~H. Mahoor, Kevin Bartlett, Philip Trinh, and
+  Jeffrey~F. Cohn.
+\newblock Disfa: A spontaneous facial action intensity database.
+\newblock {\em IEEE Transactions on Affective Computing}, 4(2):151--160, 2013.
 
 \bibitem{RefWorks:18}
 Daniel McDuff, Rana Kaliouby, Thibaud Senechal, May Amr, Jeffrey Cohn, and
@@ -30,6 +59,12 @@ Daniel McDuff, Rana Kaliouby, Thibaud Senechal, May Amr, Jeffrey Cohn, and
   spontaneous facial expressions collected.
 \newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
   Pattern Recognition Workshops}, pages 881--888, 2013.
+
+\bibitem{RefWorks:24}
+Vinod Nair and Geoffrey~E. Hinton.
+\newblock Rectified linear units improve restricted boltzmann machines.
+\newblock In {\em Proceedings of the 27th international conference on machine
+  learning (ICML-10)}, pages 807--814, 2010.
 
 \bibitem{RefWorks:19}
 Maja Pantic and Leon J.~M. Rothkrantz.
@@ -43,10 +78,17 @@ RL~Schiefelbusch.
   Scherer \& Paul Ekman (Eds.). Cambridge University Press, 1982.}, volume~4.
 \newblock Cambridge Univ Press, 1982.
 
-\bibitem{RefWorks:21}
+\bibitem{RefWorks:22}
 Karen Simonyan and Andrew Zisserman.
 \newblock Very deep convolutional networks for large-scale image recognition.
-\newblock {\em CoRR}, abs/1409.1556, 2014.
+\newblock {\em arXiv preprint arXiv:1409.1556}, 2014.
+
+\bibitem{RefWorks:23}
+Nitish Srivastava, Geoffrey Hinton, Alex Krizhevsky, Ilya Sutskever, and Ruslan
+  Salakhutdinov.
+\newblock Dropout: A simple way to prevent neural networks from overfitting.
+\newblock {\em The Journal of Machine Learning Research}, 15(1):1929--1958,
+  2014.
 
 \bibitem{RefWorks:2}
 Stefanos Zafeiriou, Athanasios Papaioannou, Irene Kotsia, Mihalis~A. Nicolaou,
